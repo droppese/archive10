@@ -3,1585 +3,711 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>무료 나눔 게시판 (밝고 심플한 테마)</title>
+    <title>나눔의 숲</title> 
     
     <style>
         /* 기본 스타일 */
+        :root{
+            --bg: #f8f9fa;
+            --card: #ffffff;
+            --accent: #3498db;
+            --muted: #7f8c8d;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --soft-green: #aed581;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Verdana, sans-serif;
+            background-color: var(--bg); 
             margin: 0;
             padding: 20px; 
             line-height: 1.6;
+            padding-bottom: 20px; 
+            -webkit-font-smoothing: antialiased;
         }
 
         .container {
             max-width: 1000px; 
             margin: auto;
-            background: #ffffff; 
+            background: var(--card); 
             padding: 25px;
             border-radius: 12px; 
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1); 
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); 
             position: relative;
-            min-height: 80vh; 
+            min-height: auto; 
         }
 
         h1 {
             color: #34495e; 
-            border-bottom: 3px solid #3498db; 
-            padding-bottom: 10px;
+            padding-bottom: 15px; 
             margin-bottom: 20px; 
             font-size: 1.8em; 
             font-weight: 600;
-        }
-        
-        /* --- 검색창 스타일 --- */
-        .search-box {
-            position: relative;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-
-        #searchInput {
-            width: 100%;
-            padding: 10px 35px 10px 10px; 
-            box-sizing: border-box; 
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 0.95em;
-        }
-
-        .search-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #95a5a6; 
-            pointer-events: none; 
-            font-size: 1.2em;
-        }
-        
-        /* 버튼 스타일 */
-        footer button, .form-actions button, #mainContent .action-group button { 
-            background-color: #e9ecef; 
-            color: #34495e;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
             cursor: pointer;
-            margin-left: 5px; 
-            font-size: 0.9em; 
-            transition: all 0.2s;
-            white-space: nowrap;
         }
 
-        footer button:hover, .form-actions button:hover, #mainContent .action-group button:hover {
-            background-color: #dee2e6;
+        /* ========== 검색, 버튼 ========== */
+        .search-box{position:relative;margin-bottom:16px}
+        #searchInput{
+            width:100%;
+            padding:10px 36px;
+            border:1px solid #ccc;
+            border-radius:6px;
+            font-size:0.95em;
+            box-sizing:border-box; /* 검색창 오버플로우 방지 */
         }
-        
-        .status-message.buyer { color: #3498db; font-weight: 600; }
+        .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none}
+        #clearSearchBtn{position:absolute;right:10px;top:50%;transform:translateY(-50%);border:none;background:none;font-weight:bold;display:none;cursor:pointer}
 
-        /* 등록 및 카테고리 버튼 컨테이너 스타일 */
-        #buttonContainer {
-            margin: 15px 0;
-            text-align: right;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px; /* 버튼 그룹 사이 간격 */
-        }
-        
-        .action-group {
-            display: flex;
-            gap: 5px;
-        }
-
-        /* 등록 버튼 스타일 */
-        #registerButtonContainer button {
-            background-color: #27ae60; 
-            color: white;
-            padding: 10px 15px;
-            font-weight: bold;
-            box-shadow: 0 2px 4px rgba(39, 174, 96, 0.3);
-            margin-left: 0; 
-        }
-        
-        #registerButtonContainer button:hover {
-            background-color: #2ecc71;
-        }
+        #buttonContainer{display:flex;justify-content:flex-end;gap:10px;margin-bottom:12px}
+        button{border:none;border-radius:6px;padding:8px 12px;cursor:pointer;background:#e9ecef;color:#34495e;transition:background-color 0.1s}
+        .primary{background:var(--success);color:#fff;font-weight:600}
+        .accent{background:var(--warning);color:#fff;font-weight:600}
+        .pill{background:#f1f3f5}
+        .cancel-btn{background:#bdc3c7; color:#fff}
         
         /* 카테고리 버튼 스타일 */
-        #categoryButton {
-            background-color: #f39c12; 
+        .category-item{background:#ecf0f1;border-radius:10px;height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;cursor:pointer; transition:background-color 0.1s}
+        .category-item.active {
+            background-color: var(--accent);
             color: white;
-            padding: 10px 15px;
             font-weight: bold;
-            box-shadow: 0 2px 4px rgba(243, 156, 18, 0.3);
-            margin-left: 0;
-        }
-        
-        #categoryButton:hover {
-            background-color: #f1c40f;
+            border-color: var(--accent);
         }
 
-        /* --- 아이템 리스트 (공통 카드 구조) 스타일 --- */
-        
-        .list-container {
+        /* 현재 카테고리 표시 스타일 */
+        #currentCategoryDisplay {
+            display: none; /* JS로 제어 */
+            margin-bottom: 12px;
+            font-weight: 700;
             display: flex;
-            flex-direction: column;
-            gap: 15px; 
-            margin-top: 15px;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background: #eef7ff; /* 연한 파랑 배경 */
+            border: 1px solid var(--accent);
+            border-radius: 6px;
+        }
+        #selectedCategoryName {
+            color: var(--accent);
+            font-size: 1.1em;
+            font-weight: 800;
+        }
+
+        /* ========== 리스트 카드 ========== */
+        .list-container{display:flex;flex-direction:column;gap:14px}
+        .item-card{display:flex;align-items:flex-start;padding:12px;border-radius:8px;border:1px solid #ecf0f1;background:#fff;box-shadow:0 4px 8px rgba(0,0,0,0.03);cursor:pointer}
+        .item-thumbnail-wrapper{width:60px;height:60px;min-width:60px;border-radius:8px;overflow:hidden;margin-right:14px;border:1px solid #bdc3c7;display:flex;align-items:center;justify-content:center;background:#ecf0f1;font-size:0.75em;color:var(--muted)}
+        .item-thumbnail{width:100%;height:100%;object-fit:cover}
+        .item-content{flex:1;min-width:0}
+        .item-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+        .item-name{font-weight:700;color:#34495e;font-size:1.05em;max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .item-info{font-size:0.85em;color:var(--muted)}
+        .item-actions{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
+
+        /* 상태 색상 */
+        .status-waiting{color:var(--warning);font-weight:700}
+        .status-selling{color:var(--success);font-weight:700}
+        .status-reserved{color:#8e44ad;font-weight:700}
+        .status-completed{color:#95a5a6}
+        .status-cancelled{color:var(--danger);font-weight:700}
+
+        .detail-row{display:none;width:100%;background:#f6f8fa;padding:14px;border-radius:8px;border:1px dashed #ddd;margin-top:-6px;box-sizing:border-box}
+        
+        /* 다중 이미지 컨테이너 스타일 */
+        .detail-image-gallery{
+            display:flex;
+            overflow-x:auto; /* 가로 스크롤 가능하게 */
+            gap:8px;
+            padding:10px 0;
+            border-bottom:1px solid #eee;
+            margin-bottom:10px;
+        }
+        .detail-image-box{
+            max-width:100%;
+            height:auto;
+            min-width:120px; /* 각 이미지 최소 너비 */
+            max-height:150px;
+            border-radius:8px;
+            border:1px solid #ccc;
+            padding:6px;
+            background:#ecf0f1;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            overflow:hidden;
+            cursor: pointer; /* 클릭 가능 표시 */
+        }
+        .detail-image-box img{
+            max-width:100%;
+            max-height:100%;
+            height:auto;
+            width:auto;
+            object-fit:contain;
+            display:block;
+            border-radius:4px;
+        }
+        /* No Image Placeholder */
+        .detail-no-image{
+             height:150px;
+             width:100%;
+             background:#e0e0e0;
+             display:flex;
+             align-items:center;
+             justify-content:center;
+             font-weight:700;
+             border-radius:8px;
+             margin-bottom:10px;
         }
         
-        #adminListPage .list-container {
-             margin-top: 25px;
-             border: 2px solid #e74c3c; 
-             border-radius: 10px;
-             padding: 15px;
-             background-color: #fef5f4; 
-        }
-
-        /* 개별 아이템 카드 스타일 */
-        .item-card {
-            display: flex; 
-            align-items: flex-start; 
-            padding: 15px;
-            border: 1px solid #ecf0f1;
-            border-radius: 8px;
-            background-color: #ffffff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-            cursor: pointer;
-            transition: background-color 0.2s;
-            position: relative;
-        }
-
-        .item-card:hover {
-            background-color: #f5f5f5;
-        }
-
-        /* 썸네일 Wrapper: 크기 고정 및 텍스트 밀림 방지 (수정됨) */
-        .item-thumbnail-wrapper {
-            width: 60px; /* 너비 고정 */
-            height: 60px; /* 높이 고정 */
-            min-width: 60px; /* 최소 너비도 60px로 고정 */
+        /* item-detail-info 내 이미지 크기 제한 (신청 페이지) */
+        .item-detail-info .image-container {
+            flex-shrink: 0;
+            width: 150px;
+            height: 150px;
+            border: 1px solid #ccc;
             border-radius: 8px;
             overflow: hidden;
-            margin-right: 15px;
-            border: 1px solid #bdc3c7;
-            flex-shrink: 0; /* 공간이 부족해도 줄어들지 않음 */
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: #ecf0f1;
-            font-size: 0.7em;
-            color: #7f8c8d;
         }
-        
-        .item-thumbnail {
+        .item-detail-info .image-container img {
             width: 100%;
             height: 100%;
-            object-fit: cover; 
-            border-radius: 8px;
-            border: none; 
+            object-fit: contain;
+            border-radius: 0;
         }
 
-        /* 텍스트 컨텐츠 영역 */
-        .item-content {
-            flex-grow: 1;
-            min-width: 0; /* flex 아이템이 오버플로우를 막도록 최소 너비를 0으로 설정 */
-        }
-        
-        .item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 5px;
-        }
-        
-        /* 관리자 목록: 이름과 상태를 세로로 배치하기 위한 조정 */
-        .admin-card .item-header {
-            display: block; 
-            margin-bottom: 0;
-        }
-        .admin-card .item-name {
-            display: block; 
-            margin-right: 0;
-            margin-bottom: 5px; 
-            white-space: normal; 
-            overflow: visible; 
-            text-overflow: clip;
-        }
-        .admin-card .item-status {
-             display: block; 
-             margin-bottom: 5px;
-        }
+        /* admin footer */
+        footer{position:fixed;left:0;right:0;bottom:0;display:none;background:var(--soft-green);padding:14px;text-align:center;box-shadow:0 -4px 8px rgba(0,0,0,0.12);z-index:100}
+        footer button{margin:0 6px}
 
-        /* 부서 불일치 시 상태 스타일 */
-        .admin-card .unauthorized {
-            color: #e74c3c;
-            font-weight: 500;
-        }
+        /* form */
+        .form-content input[type=text], .form-content select, .form-content textarea{width:100%;padding:10px;border-radius:6px;border:1px solid #ccc;box-sizing:border-box}
+        /* info-group: 3칸 -> 2칸으로 변경 (이름, 부서만 남음) */
+        .info-group{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:12px;border-radius:8px;background:#eef7ff;border:1px dashed var(--accent)}
 
+        /* category grid */
+        .category-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:12px}
 
-        .item-name {
-            font-weight: 700;
-            color: #34495e;
-            font-size: 1.1em;
-            /* 🚀 글자 밀림 방지 및 말줄임표 처리 */
-            max-width: 70%; 
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap; 
-            margin-right: 10px;
-        }
-
-        /* 아이템 상태 및 기타 정보 */
-        .item-info {
-            font-size: 0.85em;
-            color: #7f8c8d;
-            margin-bottom: 5px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        
-        .item-actions {
-            margin-top: 8px;
-            display: flex;
-            flex-wrap: wrap; 
-            gap: 5px; 
-        }
-
-        /* 디테일 내용 (DIV 형태로 변경됨) */
-        .detail-row {
-            display: none;
+        /* ========== 이미지 확대 모달 스타일 추가 ========== */
+        .image-modal {
+            display: none; /* 기본 숨김 */
+            position: fixed;
+            z-index: 200; /* 최상위 */
+            left: 0;
+            top: 0;
             width: 100%;
-            background-color: #ecf0f1; 
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: -10px; 
-            border: 1px dashed #ccc;
-            border-top: none; 
-            box-sizing: border-box;
-        }
-
-        /* 상세 이미지 영역 스타일 조정 */
-        .detail-image-box {
-            text-align: center;
-            margin: 10px auto 15px auto;
-            max-width: 100%; 
-            height: auto;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            background-color: #ecf0f1;
-            display: block;
-            padding: 0;
-            overflow: hidden;
-        }
-
-        /* 이미지 자체에 적용하여 최대 너비 보장 */
-        .detail-image-box img {
-            max-width: 100%; 
-            height: auto; 
-            display: block;
-        }
-        
-        .detail-image-box.no-image {
-            width: 100%;
-            max-width: 250px;
-            height: 150px; 
-            display: flex;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.9); /* 어두운 배경 */
             align-items: center;
             justify-content: center;
-            font-size: 1em;
-            color: #7f8c8d;
-            font-weight: bold;
+            flex-direction: column;
         }
 
-        /* 액션 버튼 스타일 */
-        .admin-action-btn, .action-btn {
-            padding: 8px 12px;
-            margin: 0; 
-            border: none;
-            border-radius: 4px;
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh; /* 화면 높이에 맞춤 */
+            object-fit: contain;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
             cursor: pointer;
-            font-size: 0.8em;
-            font-weight: 500;
-        }
-        
-        .trade-apply-btn { background-color: #3498db; color: white; } 
-        .approve-btn { background-color: #2ecc71; color: white; } 
-        .approve-trade-btn { background-color: #1abc9c; color: white; } 
-        .confirm-trade-btn { background-color: #9b59b6; color: white; } 
-        .cancel-trade-btn { background-color: #e74c3c; color: white; } 
-        .edit-btn { background-color: #f1c40f; color: #333; } 
-        .delete-btn { background-color: #bdc3c7; color: #333; }
-        
-        /* 비활성화 버튼 스타일 */
-        .disabled-btn {
-            background-color: #cccccc !important;
-            color: #666666 !important;
-            cursor: not-allowed !important;
-            pointer-events: none;
-            opacity: 0.6;
         }
 
-        .cancel-btn { 
-            background-color: #bdc3c7; 
-            color: #333;
-        }
-        
-        .cancel-btn:hover { background-color: #95a5a6; }
-
-        .detail-content {
-            padding: 15px;
-            font-size: 0.9em; 
-            color: #555;
-        }
-        
-        /* 관리자 목록과 구매자 내역 전용 카드 스타일 */
-        .admin-card {
-            background-color: #fff8f8; 
-        }
-        .history-card {
-            background-color: #f9fcff; 
-            cursor: default; 
-        }
-        .history-card:hover {
-            background-color: #f9fcff;
-        }
-        
-        .admin-info {
-            font-size: 0.8em;
-            color: #7f8c8d;
-            margin-top: 5px;
-        }
-
-        /* 푸터 스타일 */
-        footer {
-            max-width: 1000px;
-            margin: 30px auto 0 auto;
-            padding: 15px 25px;
-            text-align: center;
-            border-top: 1px solid #ecf0f1;
-            background-color: #3498db; 
-            color: white;
-            border-radius: 12px;
-            box-shadow: 0 -4px 8px rgba(0,0,0,0.1);
-        }
-        
-        footer #adminListBtn { /* 관리자 목록 버튼 스타일 유지 */
-            background-color: #e74c3c; 
-            color: white;
-            padding: 10px 18px;
-            font-weight: bold;
-            margin-right: 15px;
-        }
-        
-        footer #adminListBtn:hover {
-            background-color: #c0392b;
-        }
-
-        footer #adminLoginBtn {
-            background-color: #e74c3c; 
-            color: white;
-            padding: 10px 18px;
-            font-weight: bold;
-        }
-        
-        footer #adminLoginBtn:hover {
-            background-color: #c0392b;
-        }
-        
-        /* 아이템 등록 폼 스타일 */
-        #registrationFormPage, #itemDetailPage {
-            padding: 20px;
-            border: 1px solid #3498db;
-            border-radius: 10px;
-            background-color: #f9fcff;
-        }
-
-        #registrationFormPage h3, #itemDetailPage h3 {
-            color: #34495e;
-            border-bottom: 2px solid #bdc3c7;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            font-size: 1.3em;
-        }
-        
-        /* 폼 요소 공통 스타일 */
-        .form-content input[type="text"], .form-content select, .form-content textarea {
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box; 
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            font-size: 0.95em;
-        }
-        
-        /* 등록자/신청자 정보 입력란 그룹화 */
-        .info-group {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 10px;
-            padding: 15px;
-            border: 1px dashed #3498db;
-            border-radius: 8px;
-            background-color: #eef7ff; 
-        }
-
-        .form-label {
-            display: block;
-            font-size: 0.9em;
-            color: #555;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        
-        #itemImageFile {
-            border: none;
-            padding: 10px 0;
-        }
-
-        #itemDescription, #applyDescription {
-            height: 120px; 
-            resize: vertical;
-        }
-
-        .form-actions {
-            margin-top: 20px;
-        }
-        
-        /* 카테고리 페이지 스타일 */
-        #categoryPage {
-            padding: 20px;
-        }
-        
-        .category-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .category-item {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100px;
-            background-color: #ecf0f1;
-            border-radius: 10px;
-            font-weight: bold;
-            color: #34495e;
+        .modal-close:hover,
+        .modal-close:focus {
+            color: #bbb;
+            text-decoration: none;
             cursor: pointer;
-            transition: all 0.2s;
-            border: 2px solid transparent;
-            font-size: 1.1em;
-            text-align: center;
         }
-        
-        .category-item:hover {
-            background-color: #bdc3c7;
-            border-color: #3498db;
-        }
+        /* ================================================= */
 
-        /* 아이템 상태별 색상 */
-        .status-waiting { color: #f39c12; font-weight: bold; } 
-        .status-selling { color: #27ae60; font-weight: bold; } 
-        .status-reserved { color: #8e44ad; font-weight: bold; } 
-        .status-completed { color: #95a5a6; } 
-        .status-cancelled { color: #e74c3c; font-weight: bold; } 
-        
-        /* --- 물품 상세 및 신청 페이지 스타일 --- */
-        #itemDetailPage .item-detail-info {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        #itemDetailPage .image-container {
-            flex-shrink: 0;
-            width: 300px; 
-            max-width: 40%;
-            height: auto;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
 
-        #itemDetailPage .image-container img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-        
-        #itemDetailPage .image-container.no-image-detail {
-            height: 250px;
-            background-color: #e0e0e0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1em;
-            color: #666;
-            font-weight: bold;
-        }
-
-        #itemDetailPage .text-content {
-            flex-grow: 1;
-        }
-        
-        #itemDetailPage .text-content h2 {
-            font-size: 1.6em;
-            color: #34495e;
-            margin-top: 0;
-            margin-bottom: 10px;
-        }
-        
-        #itemDetailPage .text-content p {
-            font-size: 1em;
-            color: #555;
-            margin-bottom: 20px;
-            white-space: pre-wrap;
-        }
-        
-        #itemDetailPage .text-content strong {
-            color: #3498db;
-            display: block;
-            margin-top: 10px;
-        }
-        
-        #itemDetailPage .application-form-section {
-            padding: 20px;
-            border: 2px solid #27ae60;
-            border-radius: 10px;
-            background-color: #f0fff0;
-        }
-        
-        #itemDetailPage .application-form-section h4 {
-            color: #27ae60;
-            margin-top: 0;
-            border-bottom: 1px dashed #2ecc71;
-            padding-bottom: 10px;
-        }
-
-        /* --- 모바일 최적화 --- */
-        @media (max-width: 600px) {
-            
-            body { padding: 10px 5px; }
-            .container { padding: 15px; }
-            
-            #buttonContainer {
-                flex-direction: column; 
-                align-items: stretch;
-                gap: 10px;
-            }
-            
-            .action-group {
-                gap: 10px;
-                justify-content: space-between;
-                width: 100%;
-            }
-            
-            #registerButtonContainer button, #categoryButton {
-                flex-grow: 1;
-                margin-left: 0;
-            }
-
-            .item-card {
-                flex-direction: row; 
-                align-items: center; 
-            }
-
-            .item-actions {
-                margin-top: 0;
-                text-align: left; 
-            }
-            
-            .action-btn {
-                padding: 6px 8px;
-                font-size: 0.75em;
-                display: inline-block; 
-                margin: 0 4px 0 0;
-            }
-            
-            .category-grid {
-                grid-template-columns: repeat(2, 1fr); 
-                gap: 15px;
-            }
-
-            .info-group {
-                grid-template-columns: 1fr; 
-            }
-            
-            .category-item {
-                height: 80px;
-                font-size: 1em;
-            }
-
-            /* 상세 페이지 모바일 조정 */
-            #itemDetailPage .item-detail-info {
+        /* responsive */
+        @media(max-width:600px){
+            body{padding:10px}
+            .container{padding:14px}
+            .category-grid{grid-template-columns:repeat(2,1fr)}
+            .info-group{grid-template-columns:1fr}
+            footer{flex-wrap:wrap}
+            .item-detail-info {
                 flex-direction: column;
+                align-items: center;
             }
-            #itemDetailPage .image-container {
-                max-width: 100%;
-                width: 100%; 
+            .item-detail-info .image-container {
+                width: 100%;
+                height: 200px; /* 모바일에서 좀 더 크게 */
             }
         }
-        
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎁 무료 나눔 게시판</h1>
-        
+        <h1 id="headerTitle">🌳 나눔의 숲</h1>
+
         <div id="mainContent">
-            
             <div class="search-container">
                 <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="물품 이름으로 검색...">
+                    <input id="searchInput" type="text" placeholder="물품 이름으로 검색..." />
                     <span class="search-icon">🔍</span>
+                    <button id="clearSearchBtn" onclick="clearSearchInput()">X</button>
                 </div>
             </div>
-            
+
             <div id="buttonContainer">
                 <div class="action-group">
-                    <button id="categoryButton" onclick="showPage('categoryPage')">🏷️ 카테고리</button>
+                    <button class="accent" id="categoryButton" onclick="showPage('categoryPage')">🏷️ 카테고리</button>
                 </div>
                 <div id="registerButtonContainer" class="action-group">
-                    <button onclick="showPage('registrationFormPage')">📦 물품 등록 요청</button>
+                    <button class="primary" onclick="showPage('registrationFormPage')">📦 내 물건 등록하기</button>
                 </div>
             </div>
-            
-            <div id="currentCategoryDisplay" style="margin-bottom: 15px; font-weight: bold; display: none;">
-                현재 카테고리: <span id="selectedCategoryName" style="color:#3498db;"></span>
-                <button onclick="filterByCategory(null)" style="margin-left: 10px; padding: 5px 10px; font-size: 0.8em;">초기화</button>
-            </div>
-            
-            <div id="item-list-container" class="list-container">
+
+            <div id="currentCategoryDisplay">
+                <div>
+                    현재 카테고리: <span id="selectedCategoryName"></span>
                 </div>
-            
+                <button class="pill" onclick="filterByCategory(null)" style="padding:6px 10px;font-weight:600">🔄 초기화</button>
+            </div>
+            <div id="item-list-container" class="list-container"></div>
         </div>
-        
-        <div id="categoryPage" style="display: none;">
+
+        <div id="categoryPage" style="display:none">
             <h2>🏷️ 카테고리 선택</h2>
-            <p>원하는 카테고리를 선택하여 해당 물품만 확인하세요.</p>
-            
-            <button class="cancel-btn" onclick="showPage('main')" style="width: auto; margin-bottom: 20px;">메인 목록으로 돌아가기</button>
-
-            <div class="category-grid">
-                </div>
+            <p>원하는 카테고리를 선택하세요.</p>
+            <button class="cancel-btn" onclick="showPage('main')" style="margin-bottom:12px">🔙 뒤로가기</button>
+            <div class="category-grid"></div>
         </div>
 
-        <div id="itemDetailPage" style="display: none;">
-            </div>
+        <div id="itemDetailPage" style="display:none"></div>
 
-        <div id="adminListPage" style="display: none;">
-            <h2>🚨 관리 대기 목록 (등록 승인 및 거래 관리)</h2>
-            <p>신규 등록 승인, 나눔 신청 승인, 거래 확정 관리 작업을 수행합니다.</p>
-            <p style="color:#e74c3c; font-weight:bold;">✅ 현재 관리자 부서: <span id="currentAdminDept">로그아웃 상태</span></p>
-            
-            <button class="cancel-btn" onclick="showPage('main')" style="width: auto; margin-bottom: 20px;">메인 목록으로 돌아가기</button>
-
-            <div id="adminListContainer" class="list-container">
-                </div>
+        <div id="adminListPage" style="display:none">
+            <h2>🚨 관리 목록</h2>
+            <p>신규 등록 승인, 신청 승인, 거래 확정 등을 처리합니다.</p>
+            <p style="color:var(--danger);font-weight:700">✅ 현재 관리자 부서: <span id="currentAdminDept">로그아웃 상태</span></p>
+            <button class="cancel-btn" onclick="showPage('main')" style="margin-bottom:12px">🔙 뒤로가기</button>
+            <div id="adminListContainer" class="list-container"></div>
         </div>
 
-        <div id="registrationFormPage" style="display: none;">
-            <h3>물품 등록 요청</h3>
+        <div id="registrationFormPage" style="display:none">
+            <h3>내 물건 등록하기</h3>
             <div class="form-content">
-                
-                <label for="itemName" class="form-label">물품 이름</label>
-                <input type="text" id="itemName" placeholder="물품 이름">
-                
-                <label class="form-label" style="margin-top: 15px;">등록자 정보 (필수)</label>
+                <label class="form-label">물품 이름</label>
+                <input type="text" id="itemName" placeholder="물품 이름 (필수)" />
+
+                <label class="form-label" style="margin-top:12px">등록자 정보 (필수)</label>
                 <div class="info-group">
-                    <input type="text" id="requesterName" placeholder="이름">
-                    <select id="requesterDept">
-                        </select>
-                    <input type="text" id="requesterTeam" placeholder="팀">
-                    <input type="text" id="requesterId" placeholder="고유번호">
+                    <input type="text" id="requesterName" placeholder="이름+알파벳 (예: 김나눔a)" />
+                    <select id="requesterDept"></select>
                 </div>
 
-                <label for="itemCategory" class="form-label" style="margin-top: 15px;">카테고리 선택</label>
-                <select id="itemCategory">
-                    </select>
+                <label class="form-label" style="margin-top:12px">카테고리 선택</label>
+                <select id="itemCategory"></select>
 
-                <label for="itemImageFile" class="form-label" style="margin-top: 15px;">물품 사진 파일 선택 (선택)</label>
-                <input type="file" id="itemImageFile" accept="image/*">
-                
-                <label for="itemDescription" class="form-label" style="margin-top: 15px;">상세 설명 및 나눔 조건</label>
-                <textarea id="itemDescription" placeholder="상세 설명 및 나눔 조건을 입력해주세요."></textarea>
-                
-                <div class="form-actions">
-                    <button onclick="addItemAsync()">등록 요청하기</button>
-                    <button class="cancel-btn" onclick="showPage('main')">취소</button>
+                <label class="form-label" style="margin-top:12px">물품 사진 파일 선택 (1~3장 필수, 파일당 최대 5MB)</label>
+                <input type="file" id="itemImageFiles" accept="image/*" multiple />
+
+                <label class="form-label" style="margin-top:12px">상세 설명 및 나눔 조건 (필수)</label>
+                <textarea id="itemDescription" rows="6" placeholder="상세 설명을 입력하세요"></textarea>
+
+                <div class="form-actions" style="margin-top:12px;display:flex;gap:8px">
+                    <button class="primary" onclick="addItemAsync()">등록 요청하기</button>
+                    <button class="cancel-btn" onclick="showPage('main')">🔙 뒤로가기</button>
                 </div>
             </div>
         </div>
 
     </div>
-    
+
     <footer>
-        <button id="adminListBtn" onclick="showPage('adminListPage')" style="display: none; background-color: #e74c3c; color: white; margin-right: 15px;"></button>
-        <button id="adminLoginBtn" onclick="toggleAdminLogin()">관리자 로그인</button>
+        <button id="adminListBtn" onclick="showPage('adminListPage')" style="display:none"></button>
     </footer>
 
+    <div id="imageModal" class="image-modal" onclick="closeModal()">
+        <span class="modal-close">&times;</span>
+        <img class="modal-content" id="modalImage" onclick="event.stopPropagation()">
+    </div>
     <script>
+        /**************************************************************************
+         * 정리한 스크립트: 변수, 초기 데이터, 헬퍼 함수, 렌더러, 이벤트 핸들러
+         **************************************************************************/
+
+        // --- 상태 ---
         let isAdmin = false;
-        let adminDept = null; // 🚀 추가: 로그인된 관리자의 부서 정보 ('1부', '2부' 등)
-        
-        let currentCategoryFilter = null; // 현재 선택된 카테고리 필터
-        let currentItemId = null; // 현재 상세 페이지에서 보고 있는 아이템 ID
+        let adminDept = null;
+        let currentCategoryFilter = null;
+        let currentItemId = null;
 
-        const categories = ['유아용품', '의류', '잡화', '소형가전', '대형가전', '가구'];
-        const departments = ['1부', '2부', '3부', '4부']; 
+        // --- 상수 및 샘플 데이터 ---
+        const categories = ['유아용품','의류','잡화','소형가전','대형가전','가구','기타'];
+        const categoryIcons = { '유아용품':'🍼','의류':'👕','잡화':'👜','소형가전':'🔌','대형가전':'🏠','가구':'🛋️','기타':'🎁','전체 보기':'🔄' };
         
-        // 🚀 추가: 관리자 부서별 비밀번호 맵
-        const adminPasswords = {
-             '1부': 'dept1',
-             '2부': 'dept2',
-             '3부': 'dept3',
-             '4부': 'dept4'
+        // 🛠️ 부서명 변경 적용
+        const departments = ['교역자', '자문회', '장년회', '부녀회', '청년회', '학생회'];
+        
+        // 🛠️ 관리자 비밀번호 변경 적용
+        const adminPasswords = { 
+            '교역자':'교역자pw',
+            '자문회':'자문회pw',
+            '장년회':'장년회pw',
+            '부녀회':'부녀회pw',
+            '청년회':'청년회pw',
+            '학생회':'학생회pw'
         };
-        
         const NO_IMAGE_TEXT = '이미지 없음';
-        const NO_IMAGE_PLACEHOLDER = 'https://via.placeholder.com/250/808080/FFFFFF?text=No+Image'; 
-        const THUMBNAIL_PLACEHOLDER = 'https://via.placeholder.com/60/808080/FFFFFF?text=No+Img'; 
-        
-        function isValidImageUrl(url) {
-            return url && url.trim() !== '' && url.indexOf('No+Image') === -1 && url.indexOf('No+Img') === -1;
-        }
+        const NO_IMAGE_PLACEHOLDER = 'https://via.placeholder.com/250/808080/FFFFFF?text=No+Image';
+        const THUMBNAIL_PLACEHOLDER = 'https://via.placeholder.com/60/808080/FFFFFF?text=No+Img';
 
-        // --- 아이템 데이터 (부서 데이터 보강) ---
+        // 샘플 아이템 (초기 데이터) - 🛠️ 데이터 구조 변경: imageUrl -> imageUrls
         const items = [
-            { id: 1, name: '유아 카시트 (ISOFIX)', status: '판매 중', description: '사용 기간 1년 미만, 깨끗하게 사용했습니다. 안전기준 통과 제품.', imageUrl: 'https://via.placeholder.com/150/007BFF/FFFFFF?text=CarSeat', historyStatus: '신청 없음', category: '유아용품', requesterInfo: { name: '김나눔', dept: '1부', team: '운영팀', id: 'A100' }, historyBuyerInfo: null, registerDate: '2025-11-10' },
-            { id: 2, name: '여성용 겨울 코트 (90)', status: '거래 완료', description: '울 80% 혼방, 상태 매우 좋습니다. 드라이클리닝 완료.', imageUrl: 'https://via.placeholder.com/150/8B4513/FFFFFF?text=Coat', historyStatus: '거래 확정', category: '의류', requesterInfo: { name: '이스타일', dept: '2부', team: '프론트', id: 'B201' }, historyBuyerInfo: { name: '테스트구매자2', dept: '2부', team: '마케팅팀', id: 'B222' }, registerDate: '2025-11-11' },
-            { id: 3, name: '스테인리스 텀블러 500ml', status: '예약중', description: '새상품이며 보온/보냉 뛰어납니다. 사무실에서 유용.', imageUrl: '', historyStatus: '예약 승인', category: '잡화', requesterInfo: { name: '박직장', dept: '3부', team: '부산지점', id: 'C305' }, historyBuyerInfo: { name: '테스트구매자1', dept: '1부', team: '개발팀', id: 'A111' }, registerDate: '2025-11-12' },
-            { id: 4, name: '핸디형 무선 청소기', status: '승인 대기', description: '간단한 청소용으로 좋으나 배터리 수명이 조금 줄었습니다.', imageUrl: null, historyStatus: '신청 없음', category: '소형가전', requesterInfo: { name: '최깔끔', dept: '4부', team: '고고학팀', id: 'D410' }, historyBuyerInfo: null, registerDate: '2025-11-13' },
-            { id: 5, name: '접이식 원목 테이블', status: '예약중', description: '베란다나 원룸에 적합한 작은 테이블입니다. 다리 접힘 기능.', imageUrl: 'https://via.placeholder.com/150/A0522D/FFFFFF?text=Table', historyStatus: '신청 중', category: '가구', requesterInfo: { name: '한리빙', dept: '1부', team: '전략팀', id: 'E500' }, historyBuyerInfo: { name: '테스트구매자1', dept: '1부', team: '개발팀', id: 'A111' }, registerDate: '2025-11-13' },
-            { id: 6, name: '아기용 체온계', status: '판매 중', description: '귀 체온계입니다. 여분 필터 몇 개 같이 드립니다.', imageUrl: 'https://via.placeholder.com/150/FFC107/333333?text=Thermo', historyStatus: '신청 없음', category: '유아용품', requesterInfo: { name: '강육아', dept: '2부', team: '회계', id: 'F603' }, historyBuyerInfo: null, registerDate: '2025-11-14' },
-            { id: 7, name: '남성 정장 바지 (30인치)', status: '승인 대기', description: '슬림핏, 네이비 색상입니다. 사이즈가 맞지 않아 나눔합니다.', imageUrl: '   ', historyStatus: '신청 없음', category: '의류', requesterInfo: { name: '고패션', dept: '3부', team: '채용', id: 'G777' }, historyBuyerInfo: null, registerDate: '2025-11-15' },
-            { id: 8, name: '캠핑용 접이식 의자 2개', status: '판매 중', description: '야외 캠핑 및 낚시용으로 사용 가능합니다.', imageUrl: 'https://via.placeholder.com/150/228B22/FFFFFF?text=Chair', historyStatus: '신청 없음', category: '가구', requesterInfo: { name: '홍캠핑', dept: '4부', team: '개발팀', id: 'A110' }, historyBuyerInfo: null, registerDate: '2025-11-16' },
-            { id: 9, name: '미니 공기청정기 (차량용)', status: '예약중', description: 'USB 전원 사용. 차량이나 작은 방에 적합합니다.', imageUrl: 'https://via.placeholder.com/150/00FFFF/000000?text=AirPuri', historyStatus: '신청 중', category: '소형가전', requesterInfo: { name: '이맑음', dept: '1부', team: '총무팀', id: 'B221' }, historyBuyerInfo: { name: '테스트구매자2', dept: '2부', team: '마케팅팀', id: 'B222' }, registerDate: '2025-11-17' },
-            { id: 10, name: '분유 포트 (온도 유지 기능)', status: '예약중', description: '신생아 분유 타기에 최적화된 포트. 사용감 있습니다.', imageUrl: 'https://via.placeholder.com/150/DC3545/FFFFFF?text=FormulaPot', historyStatus: '예약 승인', category: '유아용품', requesterInfo: { name: '김바틀', dept: '2부', team: '해외영업', id: 'C335' }, historyBuyerInfo: { name: '테스트구매자2', dept: '2부', team: '마케팅팀', id: 'B222' }, registerDate: '2025-11-18' },
-            { id: 11, name: '여행용 백팩 (노트북 수납)', status: '거래 완료', description: '3박 4일 여행용으로 적합한 백팩. 노트북 수납 공간 별도.', imageUrl: 'https://via.placeholder.com/150/A9A9A9/000000?text=Backpack', historyStatus: '거래 확정', category: '잡화', requesterInfo: { name: '박여행', dept: '3부', team: 'AI랩', id: 'D440' }, historyBuyerInfo: { name: '테스트구매자1', dept: '1부', team: '개발팀', id: 'A111' }, registerDate: '2025-11-19' },
-            { id: 12, name: '27인치 LED 모니터', status: '판매 중', description: '화면 상태 양호하며, HDMI 케이블 함께 드립니다. 재택근무용.', imageUrl: 'https://via.placeholder.com/150/800080/FFFFFF?text=Monitor', historyStatus: '신청 없음', category: '소형가전', requesterInfo: { name: '최개발', dept: '4부', team: '컨텐츠팀', id: 'E550' }, historyBuyerInfo: null, registerDate: '2025-11-20' },
-            { id: 13, name: '양문형 냉장고 (구형)', status: '판매 중', description: '10년 된 구형 모델이나 작동에 문제 없습니다. 직접 운반하셔야 합니다.', imageUrl: 'https://via.placeholder.com/150/4682B4/FFFFFF?text=Fridge', historyStatus: '신청 없음', category: '대형가전', requesterInfo: { name: '한살림', dept: '1부', team: '세무', id: 'F663' }, historyBuyerInfo: null, registerDate: '2025-11-21' },
-            { id: 14, name: '여성용 가죽 장갑', status: '판매 중', description: '블랙 색상, 안감 기모 처리된 겨울 장갑.', imageUrl: 'https://via.placeholder.com/150/556B2F/FFFFFF?text=Glove', historyStatus: '신청 없음', category: '의류', requesterInfo: { name: '강겨울', dept: '2부', team: '교육', id: 'G770' }, historyBuyerInfo: null, registerDate: '2025-11-22' },
-            { id: 15, name: '전기밥솥 6인용', status: '판매 중', description: '깨끗하게 사용한 6인용 밥솥입니다. 내솥 상태 양호.', imageUrl: 'https://via.placeholder.com/150/9932CC/FFFFFF?text=RiceCooker', historyStatus: '신청 없음', category: '소형가전', requesterInfo: { name: '고주방', dept: '3부', team: '운영팀', id: 'A101' }, historyBuyerInfo: null, registerDate: '2025-11-23' },
-            { id: 16, name: '3단 서랍장', status: '판매 중', description: '기본적인 3단 서랍장입니다. 약간의 사용감 있음.', imageUrl: 'https://via.placeholder.com/150/CD853F/FFFFFF?text=Drawer', historyStatus: '신청 없음', category: '가구', requesterInfo: { name: '홍수납', dept: '4부', team: '백엔드', id: 'B202' }, historyBuyerInfo: null, registerDate: '2025-11-24' },
-            { id: 17, name: '분리수거함 3종 세트', status: '승인 대기', description: '종이/플라스틱/캔 3가지로 나뉜 분리수거함.', imageUrl: 'https://via.placeholder.com/150/B0C4DE/000000?text=Recycle', historyStatus: '신청 없음', category: '잡화', requesterInfo: { name: '이청소', dept: '1부', team: '강남지점', id: 'C306' }, historyBuyerInfo: null, registerDate: '2025-11-25' },
-            { id: 18, name: '전기장판 (싱글 사이즈)', status: '판매 중', description: '온도 조절 잘 됩니다. 보관 시 생긴 접힘 자국 약간 있음.', imageUrl: 'https://via.placeholder.com/150/FF69B4/FFFFFF?text=HeatingPad', historyStatus: '신청 없음', category: '대형가전', requesterInfo: { name: '김온돌', dept: '2부', team: '화학팀', id: 'D411' }, historyBuyerInfo: null, registerDate: '2025-11-26' },
-            { id: 19, name: '남성 캐주얼 재킷 (100)', status: '거래 완료', description: '봄/가을용 면 재킷입니다. 유행 타지 않는 디자인.', imageUrl: 'https://via.placeholder.com/150/808080/FFFFFF?text=Jacket', historyStatus: '거래 확정', category: '의류', requesterInfo: { name: '박직물', dept: '3부', team: '브랜드팀', id: 'E501' }, historyBuyerInfo: { name: '테스트구매자2', dept: '2부', team: '마케팅팀', id: 'B222' }, registerDate: '2025-11-27' },
-            { id: 20, name: '아기 바운서', status: '예약중', description: '진동 기능 잘 작동합니다. 시트 세탁 완료.', imageUrl: 'https://via.placeholder.com/150/FFD700/000000?text=Bouncer', historyStatus: '예약 승인', category: '유아용품', requesterInfo: { name: '최놀이', dept: '4부', team: '자금', id: 'F604' }, historyBuyerInfo: { name: '테스트구매자1', dept: '1부', team: '개발팀', id: 'A111' }, registerDate: '2025-11-28' }
+            { 
+                id:1, name:'유아 카시트 (ISOFIX)', status:'판매 중', description:'사용 기간 1년 미만, 깨끗합니다.', 
+                imageUrls:['https://via.placeholder.com/200/007BFF/FFFFFF?text=CarSeat_Main','https://via.placeholder.com/300/007BFF/FFFFFF?text=CarSeat_Side','https://via.placeholder.com/200/007BFF/FFFFFF?text=CarSeat_Detail'], // 배열로 변경
+                historyStatus:'신청 없음', category:'유아용품', requesterInfo:{name:'김나눔',dept:'교역자',team:'',id:''}, historyBuyerInfo:null, registerDate:'2025-11-10' 
+            },
+            { 
+                id:2, name:'여성용 겨울 코트 (90)', status:'거래 완료', description:'울 혼방, 상태 양호', 
+                imageUrls:['https://via.placeholder.com/150/8B4513/FFFFFF?text=Coat'], // 배열로 변경
+                historyStatus:'거래 확정', category:'의류', requesterInfo:{name:'이스타일',dept:'자문회',team:'',id:''}, historyBuyerInfo:{name:'테스트구매자2',dept:'장년회',team:'',id:''}, registerDate:'2025-11-11' 
+            }
+            // ... 나머지 샘플은 필요 시 추가
         ];
 
-        // 초기화 함수
-        window.onload = function() {
-            showPage('main');
-        };
+        // ========== 헬퍼 ==========
         
-        // --- 페이지 전환 관리 함수 ---
-        function showPage(pageId, itemId = null) {
-            const pages = ['mainContent', 'registrationFormPage', 'adminListPage', 'categoryPage', 'itemDetailPage'];
-            pages.forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.style.display = 'none';
-                }
+        // 🛠️ 변경: 아이템에서 표시할 이미지 URL을 가져오는 헬퍼 함수
+        function getDisplayImage(item, index = 0) {
+            if (item.imageUrls && item.imageUrls.length > index && item.imageUrls[index].trim() !== '') {
+                return item.imageUrls[index];
+            }
+            return null;
+        }
+
+        // 🛠️ 변경: 아이템에 유효한 이미지 URL이 있는지 확인 (최소 1장)
+        function isValidImageUrl(item){
+            return getDisplayImage(item) !== null;
+        }
+
+        function getTodayDate(){ const n=new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}` }
+        function getStatusClass(status){ if(status==='승인 대기') return 'status-waiting'; if(status==='판매 중') return 'status-selling'; if(status==='예약중') return 'status-reserved'; if(status==='거래 완료') return 'status-completed'; if(status==='취소됨') return 'status-cancelled'; return '' }
+        function getDisplayStatusText(internalStatus,item){ if(internalStatus==='승인 대기') return '승인 대기'; if(internalStatus==='판매 중') return '신청 가능'; if(internalStatus==='거래 완료') return '나눔 완료'; if(internalStatus==='예약중'){ if(!isAdmin) return '예약중'; if(item && item.historyStatus==='예약 승인') return '예약 확정 (2차 대기)'; if(item && item.historyStatus==='신청 중') return '예약 대기 (1차 대기)'; return '예약중' } return internalStatus }
+
+        // 🛠️ 변경: 파일 용량 제한 (2MB -> 5MB) 및 에러 메시지 수정
+        function convertFileToBase64(file){ 
+            return new Promise((resolve,reject)=>{ 
+                const reader = new FileReader(); 
+                const maxSize = 5*1024*1024; // 5MB
+                if(file.size>maxSize){ 
+                    reject(new Error('파일 크기가 5MB를 초과합니다.')); 
+                    return 
+                } 
+                reader.onload=()=>resolve(reader.result); 
+                reader.onerror=e=>reject(e); 
+                reader.readAsDataURL(file); 
+            }) 
+        }
+        
+        // 🛠️ 추가: 이미지 확대 모달 처리 함수
+        function openModal(imageUrl) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.style.display = 'flex'; // flex로 변경하여 이미지 중앙 정렬
+            modalImg.src = imageUrl;
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+        // ===========================================
+
+
+        // ========== 렌더링 ==========
+        function renderCategoryGrid(){
+            const grid = document.querySelector('#categoryPage .category-grid'); grid.innerHTML='';
+            categories.forEach(cat=>{
+                const div=document.createElement('div'); div.className='category-item'; div.dataset.category=cat; div.innerHTML=`<div style="font-size:1.6rem">${categoryIcons[cat]||'❓'}</div>${cat}`;
+                div.onclick = ()=>{ filterByCategory(cat); showPage('main'); };
+                grid.appendChild(div);
             });
-
-            if (pageId === 'main') {
-                document.getElementById('mainContent').style.display = 'block';
-                searchItems(); 
-            } else if (pageId === 'registrationFormPage') {
-                document.getElementById('registrationFormPage').style.display = 'block';
-                renderCategorySelect();
-                renderDeptSelect('requesterDept');
-            } else if (pageId === 'adminListPage') {
-                document.getElementById('adminListPage').style.display = 'block';
-                // 🚀 추가: 관리자 부서 표시 업데이트
-                document.getElementById('currentAdminDept').textContent = isAdmin ? adminDept : '로그아웃 상태';
-                renderAdminList();
-            } else if (pageId === 'categoryPage') {
-                document.getElementById('categoryPage').style.display = 'block';
-                renderCategoryGrid();
-            } else if (pageId === 'itemDetailPage') {
-                document.getElementById('itemDetailPage').style.display = 'block';
-                if (itemId !== null) {
-                    renderItemDetailPage(itemId);
-                }
-            }
+            const all = document.createElement('div'); all.className='category-item'; all.dataset.category=null; all.innerHTML=`<div style="font-size:1.6rem">${categoryIcons['전체 보기']||'🔄'}</div>전체 보기`; 
+            all.onclick=()=>{ filterByCategory(null); showPage('main'); }; 
+            grid.appendChild(all);
             
-            // 관리자 버튼 업데이트는 항상 호출
-            updateAdminButtonStatus(); 
-        }
-
-        function toggleDetails(itemId, event) {
-            const detailDiv = document.getElementById(`detail-${itemId}`);
-            
-            // 버튼 클릭 시 상세 정보 토글을 막음
-            const isTargetButton = event.target.closest('.item-actions') !== null || event.target.closest('.admin-action-btn') !== null;
-            if (isTargetButton) return;
-            
-            if (detailDiv.style.display === 'block') { 
-                detailDiv.style.display = 'none';
-            } else {
-                document.querySelectorAll('.detail-row').forEach(div => {
-                    if (div.id !== `detail-${itemId}`) {
-                        div.style.display = 'none';
-                    }
-                });
-                detailDiv.style.display = 'block'; 
-            }
-        }
-        
-        function getTodayDate() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
-
-        function getStatusClass(status) {
-            if (status === '승인 대기') return 'status-waiting';
-            if (status === '판매 중') return 'status-selling'; 
-            if (status === '예약중') return 'status-reserved'; 
-            if (status === '거래 완료') return 'status-completed'; 
-            if (status === '취소됨') return 'status-cancelled';
-            return '';
-        }
-        
-        function getDisplayStatusText(internalStatus, item) {
-            if (internalStatus === '승인 대기') return '승인 대기';
-            if (internalStatus === '판매 중') return '신청 가능'; 
-            if (internalStatus === '거래 완료') {
-                return '나눔 완료'; 
-            }
-            
-            if (internalStatus === '예약중') {
-                if (item.historyStatus === '예약 승인') {
-                     return '예약 확정'; 
-                } else if (item.historyStatus === '신청 중') {
-                    return '예약 대기'; 
+            // 초기 활성화 상태 설정
+            document.querySelectorAll('.category-item').forEach(btn => {
+                if (btn.dataset.category === currentCategoryFilter || (!currentCategoryFilter && btn.innerHTML.includes('전체 보기'))) {
+                    btn.classList.add('active');
                 } else {
-                    return '예약중'; 
+                    btn.classList.remove('active');
                 }
-            }
-            
-            return internalStatus;
-        }
-        
-        // --- 카테고리 페이지 관련 함수 ---
-        function renderCategoryGrid() {
-            const gridContainer = document.querySelector('#categoryPage .category-grid');
-            gridContainer.innerHTML = '';
-            
-            categories.forEach(category => {
-                const item = document.createElement('div');
-                item.classList.add('category-item');
-                item.textContent = category;
-                item.onclick = () => {
-                    filterByCategory(category);
-                    showPage('main'); 
-                };
-                gridContainer.appendChild(item);
             });
+        }
+
+        function renderCategorySelect(){ const sel = document.getElementById('itemCategory'); sel.innerHTML='<option value="">--- 카테고리 선택 ---</option>'; categories.forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o) }); }
+        function renderDeptSelect(elementId,defaultValue=''){ const sel = document.getElementById(elementId); if(!sel) return; sel.innerHTML=`<option value="">--- 부서 선택 (필수) ---</option>`; departments.forEach(d=>{ const o=document.createElement('option'); o.value=d; o.textContent=d; if(d===defaultValue) o.selected=true; sel.appendChild(o) }); }
+
+        function renderItems(displayItems){
+            const list = document.getElementById('item-list-container'); list.innerHTML='';
+            let filtered = displayItems.slice();
+            // 관리자가 아니면 '승인 대기'는 숨김
+            if (!isAdmin) { filtered = filtered.filter(item => item.status !== '승인 대기'); }
+            // 카테고리 필터 적용
+            if(currentCategoryFilter) filtered = filtered.filter(i=>i.category===currentCategoryFilter);
             
-            const allItem = document.createElement('div');
-            allItem.classList.add('category-item');
-            allItem.textContent = '전체 보기';
-            allItem.onclick = () => {
-                filterByCategory(null);
-                showPage('main'); 
-            };
-            gridContainer.appendChild(allItem);
+            const statusOrder = {' 판매 중':1,'예약중':2,'거래 완료':3};
+            filtered.sort((a,b)=> (statusOrder[a.status]||99)-(statusOrder[b.status]||99));
+
+            if(filtered.length===0){ list.innerHTML='<p style="text-align:center;color:#777;padding:20px;margin:0">조건에 맞는 물품이 없습니다.</p>'; return }
+
+            filtered.forEach(item=>{
+                // 🛠️ 변경: 첫 번째 이미지를 썸네일로 사용
+                const firstImageUrl = getDisplayImage(item, 0);
+                const isNoImage = firstImageUrl === null;
+                const displayImageUrl = isNoImage?THUMBNAIL_PLACEHOLDER:firstImageUrl;
+                const thumbnailHtml = isNoImage?`<div class="item-thumbnail-wrapper">${NO_IMAGE_TEXT}</div>`:`<div class="item-thumbnail-wrapper"><img class="item-thumbnail" src="${displayImageUrl}" alt="${item.name} 이미지"></div>`;
+                
+                const statusText = getDisplayStatusText(item.status,item);
+                const statusClass = getStatusClass(item.status);
+                let actionButton = '';
+                if(!isAdmin && item.status==='판매 중') actionButton=`<button class="primary" onclick="showPage('itemDetailPage',${item.id})">나눔 신청</button>`;
+                
+                // 🎯 부서 정보 노출 및 줄바꿈
+                let requesterInfoDisplay = `${item.requesterInfo.dept||'미상'}`; // 부서명만
+                if(isAdmin) { requesterInfoDisplay += ` (${item.requesterInfo.name})`; } // 관리자: 부서 (이름)
+                const itemInfoContent = `카테고리: ${item.category||'미분류'} | 등록일: ${item.registerDate||'-'}<br>등록 부서: ${requesterInfoDisplay}`;
+
+                const card = document.createElement('div'); card.className='item-card'; card.dataset.id=item.id;
+                card.innerHTML = `${thumbnailHtml}<div class="item-content"><div class="item-header"><span class="item-name" title="${item.name}">${item.name}</span><span class="item-status ${statusClass}">${statusText}</span></div><div class="item-info">${itemInfoContent}</div><div class="item-actions">${actionButton}</div></div>`;
+                card.onclick = (e)=>toggleDetails(item.id,e);
+                list.appendChild(card);
+
+                const detailDiv = document.createElement('div'); detailDiv.className='detail-row'; detailDiv.id=`detail-${item.id}`;
+                const formattedDescription = (item.description||'설명이 없습니다.').replace(/\n/g,'<br>');
+                
+                // 🛠️ 변경: 다중 이미지 갤러리 렌더링
+                let detailImageHtml = '';
+                if (item.imageUrls && item.imageUrls.length > 0) {
+                    detailImageHtml = '<div class="detail-image-gallery">';
+                    item.imageUrls.forEach(url => {
+                        if (url && url.trim() !== '') {
+                             // 🛠️ 수정: 이미지를 클릭하면 openModal 함수 호출 추가
+                             detailImageHtml += `<div class="detail-image-box"><img src="${url}" alt="${item.name} 상세 이미지" onclick="openModal('${url}')"></div>`;
+                        }
+                    });
+                    detailImageHtml += '</div>';
+                } else {
+                    detailImageHtml = `<div class="detail-no-image">${NO_IMAGE_TEXT}</div>`;
+                }
+
+
+                let requesterInfoHtml = '';
+                // '팀' 정보 제거 적용
+                if(isAdmin){ requesterInfoHtml = `<div style="margin-top:12px"><strong>등록자 정보 (관리자 전용):</strong><br>이름: ${item.requesterInfo.name} | 부서: ${item.requesterInfo.dept}</div>` }
+                
+                let deleteButtonHtml = '';
+                const canDelete = isAdmin && adminDept===item.requesterInfo.dept;
+                if(canDelete) deleteButtonHtml = `<button class="cancel-btn" onclick="deleteItem(${item.id})">🗑️ 물품 삭제 (관리자)</button>`;
+
+                let buyerInfoHtml = '';
+                // '팀' 정보 제거 적용
+                if(isAdmin && item.historyBuyerInfo) buyerInfoHtml = `<div style="margin-top:12px;border-top:1px dashed #ddd;padding-top:8px"><strong>신청자 정보 (관리자 전용):</strong><br>이름: ${item.historyBuyerInfo.name} | 부서: ${item.historyBuyerInfo.dept}</div>`;
+
+                let editButtonHtml = '';
+                const canEdit = isAdmin && adminDept===item.requesterInfo.dept;
+                if(canEdit) editButtonHtml = `<button class="accent" onclick="editItem(${item.id})">✍️ 물품 수정 (관리자)</button>`;
+                
+                detailDiv.innerHTML = `<div class="detail-content">${detailImageHtml}<div style="margin-top:12px"><strong>상세 설명:</strong><br>${formattedDescription}</div>${requesterInfoHtml}${buyerInfoHtml}<div style="margin-top:12px;text-align:right">${editButtonHtml} ${deleteButtonHtml}</div></div>`;
+                list.appendChild(detailDiv);
+            });
+            updateAdminButtonStatus();
+        }
+
+        // 상세 보기 토글 (단, 버튼 클릭은 막음)
+        function toggleDetails(itemId,event){
+            const detailDiv = document.getElementById(`detail-${itemId}`);
+            const isAction = event.target.closest('.item-actions') || event.target.closest('button');
+            if(isAction) return; // 버튼 클릭일 때는 상세 토글 방지
+            if(!detailDiv) return;
+            const isOpen = detailDiv.style.display==='block';
+            document.querySelectorAll('.detail-row').forEach(d=>d.style.display='none');
+            detailDiv.style.display = isOpen? 'none' : 'block';
+        }
+
+        // ========== 페이지 전환 ==========
+        function showPage(pageId,itemId=null){
+            const pages = ['mainContent','registrationFormPage','adminListPage','categoryPage','itemDetailPage'];
+            pages.forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display = 'none'; });
+            if(pageId==='main'){ document.getElementById('mainContent').style.display='block'; searchItems(); }
+            else if(pageId==='registrationFormPage'){ document.getElementById('registrationFormPage').style.display='block'; renderCategorySelect(); renderDeptSelect('requesterDept'); }
+            else if(pageId==='adminListPage'){ document.getElementById('adminListPage').style.display='block'; document.getElementById('currentAdminDept').textContent = isAdmin?adminDept:'로그아웃 상태'; renderAdminList(); }
+            else if(pageId==='categoryPage'){ document.getElementById('categoryPage').style.display='block'; renderCategoryGrid(); }
+            else if(pageId==='itemDetailPage'){ document.getElementById('itemDetailPage').style.display='block'; if(itemId!==null) renderItemDetailPage(itemId); }
+            updateAdminButtonStatus();
+        }
+
+        // ========== 검색/필터링 ==========
+        function searchItems(){
+            const q = (document.getElementById('searchInput').value||'').trim().toLowerCase();
+            const filtered = items.filter(i=> i.name.toLowerCase().includes(q));
+            renderItems(filtered);
+            
+            // 검색 시에는 카테고리 필터 초기화 (검색과 필터 중 하나만 적용)
+            currentCategoryFilter = null;
+            renderCategoryGrid(); // 카테고리 버튼의 활성화 상태 초기화
+            document.getElementById('currentCategoryDisplay').style.display = 'none';
+        }
+
+        function clearSearchInput(){ 
+            document.getElementById('searchInput').value=''; 
+            document.getElementById('clearSearchBtn').style.display='none'; 
+            searchItems(); 
         }
         
         function filterByCategory(category) {
+            // 1. 검색창 초기화
+            document.getElementById('searchInput').value = '';
+            document.getElementById('clearSearchBtn').style.display = 'none';
+
+            // 2. 필터 적용 및 렌더링
             currentCategoryFilter = category;
+            renderItems(items);
+
+            // 3. 현재 카테고리 표시 및 버튼 업데이트 (요청사항 반영)
             const display = document.getElementById('currentCategoryDisplay');
             const nameSpan = document.getElementById('selectedCategoryName');
             
             if (category) {
-                display.style.display = 'block';
+                // 카테고리가 선택된 경우 표시
+                display.style.display = 'flex'; 
                 nameSpan.textContent = category;
             } else {
+                // 필터가 해제된 경우 숨김
                 display.style.display = 'none';
                 nameSpan.textContent = '';
             }
-            
-            searchItems(); 
+            renderCategoryGrid();
         }
-        
-        function renderCategorySelect() {
-            const select = document.getElementById('itemCategory');
-            select.innerHTML = '<option value="">--- 카테고리 선택 ---</option>';
-            categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category;
-                option.textContent = category;
-                select.appendChild(option);
-            });
-        }
-        
-        // --- 부서 선택 드롭다운 렌더링 함수 ---
-        function renderDeptSelect(elementId, defaultValue = '') {
-            const select = document.getElementById(elementId);
-            if (!select) return;
 
-            select.innerHTML = `<option value="">--- 부서 선택 (필수) ---</option>`;
-            departments.forEach(dept => {
-                const option = document.createElement('option');
-                option.value = dept;
-                option.textContent = dept;
-                if (dept === defaultValue) {
-                    option.selected = true;
-                }
-                select.appendChild(option);
-            });
+        // ========== 관리자 로그인 (헤더 3회 클릭) ==========
+        let headerClickCount=0,lastClickTime=0,TIMEOUT_MS=1000;
+        document.getElementById('headerTitle').addEventListener('click',()=>{
+            if(isAdmin) return; const now=Date.now(); if(now-lastClickTime>TIMEOUT_MS) headerClickCount=1; else headerClickCount++; lastClickTime=now; if(headerClickCount===3){ headerClickCount=0; loginAdmin(); }
+        });
+
+        function loginAdmin(){
+            const dept = prompt('관리자 로그인 - 부서를 입력하세요 (예: 교역자, 자문회 등)'); if(!dept) return; // 🛠️ 부서명 프롬프트 변경
+            if(!adminPasswords[dept]){ alert('알 수 없는 부서입니다.'); return; }
+            const pw = prompt(`${dept} 비밀번호를 입력하세요`); if(pw===null) return;
+            if(pw === adminPasswords[dept]){ isAdmin=true; adminDept=dept; alert(`관리자(${adminDept})로 로그인되었습니다.`); showPage('main'); }
+            else{ alert('비밀번호가 틀렸습니다.'); }
         }
-        
-        // --- 핵심: 메인 카드 리스트 렌더링 함수 ---
-        function renderItems(displayItems) {
-            const listContainer = document.getElementById('item-list-container');
-            listContainer.innerHTML = ''; 
+        function logoutAdmin(){ isAdmin=false; adminDept=null; alert('관리자에서 로그아웃되었습니다.'); showPage('main'); }
+
+        // ========== 관리자 관련 액션 ==========
+        function checkAdminAuth(item,actionType){ if(!isAdmin) return false; if(actionType==='register_approve' || actionType==='delete' || actionType==='edit') return adminDept===item.requesterInfo.dept; if(actionType==='trade_approve') return adminDept===item.requesterInfo.dept; if(actionType==='trade_confirm'){ if(!item.historyBuyerInfo) return false; return adminDept===item.historyBuyerInfo.dept } return false }
+
+        function renderAdminList(){ 
+            if(!isAdmin) return; 
+            const list = document.getElementById('adminListContainer'); list.innerHTML=''; 
+            const adminItems = items.filter(i=> i.status==='승인 대기' || i.status==='예약중'); 
             
-            let filteredByCat = displayItems;
-            if (currentCategoryFilter) {
-                 filteredByCat = displayItems.filter(item => item.category === currentCategoryFilter);
+            if(adminItems.length===0){ 
+                list.innerHTML='<p style="text-align:center;color:#555;padding:20px;margin:0">현재 관리 대기 중인 물품이 없습니다.</p>'; 
+                return 
             }
             
-            const statusOrder = { '판매 중': 1, '예약중': 2, '거래 완료': 3 };
-            
-            filteredByCat.sort((a, b) => {
-                const orderA = statusOrder[a.status] || 99;
-                const orderB = statusOrder[b.status] || 99;
-                return orderA - orderB;
-            });
-            
-            const finalDisplayItems = filteredByCat;
+            adminItems.forEach(item=>{
+                let displayStatus=''; let actions='';
+                const canApproveRegister = checkAdminAuth(item,'register_approve');
+                const canApproveTrade = checkAdminAuth(item,'trade_approve');
+                const canConfirmTrade = checkAdminAuth(item,'trade_confirm');
 
-            if (finalDisplayItems.length === 0) {
-                 listContainer.innerHTML = '<p style="text-align: center; color: #777; padding: 20px; margin: 0;">해당 조건에 맞는 물품이 없습니다.</p>';
-                 return;
-            }
-
-            finalDisplayItems.forEach(item => {
-                
-                const isNoImage = !isValidImageUrl(item.imageUrl);
-                const displayImageUrl = isNoImage ? THUMBNAIL_PLACEHOLDER : item.imageUrl;
-                
-                let thumbnailHtml = '';
-                if (isNoImage) {
-                    thumbnailHtml = `<div class="item-thumbnail-wrapper">${NO_IMAGE_TEXT}</div>`;
-                } else {
-                    thumbnailHtml = `<div class="item-thumbnail-wrapper"><img src="${displayImageUrl}" alt="${item.name} 이미지" class="item-thumbnail"></div>`;
+                if(item.status==='승인 대기'){ 
+                    displayStatus='등록 승인 대기'; 
+                    const reqDept=item.requesterInfo.dept; 
+                    if(canApproveRegister) actions = `<button class="primary" onclick="approveItem(${item.id})">✅ 등록 승인</button> <button class="cancel-btn" onclick="deleteItem(${item.id})">❌ 삭제</button>`; 
+                    else actions=`<button class="pill disabled">권한 없음 (담당: ${reqDept})</button>` 
                 }
-
-                let statusText = getDisplayStatusText(item.status, item); 
-                let statusClass = getStatusClass(item.status);
-                
-                let actionButton = '';
-                if (isAdmin) {
-                    actionButton = `
-                        <button class="admin-action-btn edit-btn" onclick="editItem(${item.id})">수정</button>
-                        <button class="admin-action-btn delete-btn item-delete-btn" data-item-id="${item.id}">삭제</button>
-                    `;
-                } else if (item.status === '판매 중') { 
-                    // 버튼 클릭 시 상세 페이지로 이동
-                    actionButton = `<button class="action-btn trade-apply-btn" onclick="showPage('itemDetailPage', ${item.id})">나눔 신청</button>`;
-                } else if (item.status === '예약중') {
-                    actionButton = `<span class="${statusClass}">${statusText}</span>`; 
-                }
-
-                
-                // 등록자 정보 표시 여부 결정 (관리자 전용)
-                let requesterInfoPart = '';
-                if (isAdmin) {
-                    requesterInfoPart = ` | 등록자: ${item.requesterInfo.name} (${item.requesterInfo.dept})`;
-                }
-                
-                const card = document.createElement('div');
-                card.classList.add('item-card');
-                card.setAttribute('data-id', item.id);
-                
-                card.innerHTML = `
-                    ${thumbnailHtml}
-                    <div class="item-content">
-                        <div class="item-header">
-                            <span class="item-name" title="${item.name}">${item.name}</span>
-                            <span class="item-status ${statusClass}">${statusText}</span>
-                        </div>
-                        <div class="item-info">
-                            카테고리: ${item.category || '미분류'} | 등록일: ${item.registerDate || '-'}
-                            ${requesterInfoPart}
-                        </div>
-                        <div class="item-actions">
-                            ${actionButton}
-                        </div>
-                    </div>
-                `;
-                
-                card.onclick = (event) => toggleDetails(item.id, event);
-                listContainer.appendChild(card);
-                
-                if (isAdmin) {
-                    const deleteButton = card.querySelector(`.item-delete-btn[data-item-id="${item.id}"]`);
-                    if (deleteButton) {
-                        deleteButton.addEventListener('click', (event) => {
-                            event.stopPropagation();
-                            deleteItem(item.id);
-                        });
+                else if(item.status==='예약중'){
+                    if(item.historyStatus==='신청 중'){ 
+                        displayStatus='1차 대기 (신청 승인)'; 
+                        const reqDept=item.requesterInfo.dept; 
+                        if(canApproveTrade) actions=`<button class="primary" onclick="approveTrade(${item.id})">✅ 1차 신청 승인</button> <button class="cancel-btn" onclick="cancelTradeByAdmin(${item.id})">❌ 신청 거절</button>`; 
+                        else actions=`<button class="pill disabled">권한 없음 (담당: ${reqDept})</button>` 
                     }
-                }
-
-                const detailDiv = document.createElement('div');
-                detailDiv.classList.add('detail-row');
-                detailDiv.id = `detail-${item.id}`;
-                
-                const formattedDescription = (item.description || '설명이 없습니다.').replace(/\n/g, '<br>');
-                const isDetailNoImage = !isValidImageUrl(item.imageUrl);
-                const detailImageUrl = isDetailNoImage ? NO_IMAGE_PLACEHOLDER : item.imageUrl;
-                
-                let detailImageHtml = '';
-                if (isDetailNoImage) {
-                    detailImageHtml = `<div class="detail-image-box no-image">${NO_IMAGE_TEXT}</div>`;
-                } else {
-                    detailImageHtml = `<div class="detail-image-box"><img src="${detailImageUrl}" alt="${item.name} 상세 이미지" class="detail-image"></div>`;
-                }
-
-                // 상세 보기 팝업에서는 등록자 전체 정보를 관리자만 볼 수 있게 유지합니다.
-                let requesterInfoHtml = '';
-                if (isAdmin) {
-                    requesterInfoHtml = `
-                        <div class="detail-text" style="margin-top: 15px;">
-                            <strong>등록자 정보 (관리자 전용):</strong><br>
-                            이름: ${item.requesterInfo.name} | 부서: ${item.requesterInfo.dept} | 팀: ${item.requesterInfo.team} | 고유번호: ${item.requesterInfo.id}
-                        </div>
-                    `;
-                }
-                
-                let buyerInfoHtml = '';
-                if (isAdmin && item.historyBuyerInfo) {
-                    buyerInfoHtml = `
-                        <div class="detail-text" style="margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px;">
-                            <strong>신청자 정보 (관리자 전용):</strong><br>
-                            이름: ${item.historyBuyerInfo.name} | 부서: ${item.historyBuyerInfo.dept} | 팀: ${item.historyBuyerInfo.team} | 고유번호: ${item.historyBuyerInfo.id}
-                        </div>
-                    `;
-                }
-
-
-                detailDiv.innerHTML = `
-                    <div class="detail-content">
-                        ${detailImageHtml}
-                        <div class="detail-text" style="margin-bottom: 15px;">
-                            <strong>상세 설명:</strong><br>
-                            ${formattedDescription}
-                        </div>
-                        ${requesterInfoHtml}
-                        ${buyerInfoHtml}
-                    </div>
-                `;
-                listContainer.appendChild(detailDiv);
-            });
-            
-            updateAdminButtonStatus();
-        }
-        
-        // --- 물품 상세 및 신청 페이지 렌더링 함수 (수정 반영) ---
-        function renderItemDetailPage(itemId) {
-            const item = items.find(i => i.id === itemId);
-            const detailPage = document.getElementById('itemDetailPage');
-            currentItemId = itemId;
-
-            if (!item || item.status !== '판매 중') {
-                detailPage.innerHTML = `
-                    <h3>🚫 나눔 신청 불가</h3>
-                    <p>이 물품은 현재 신청 가능한 상태가 아닙니다.</p>
-                    <button class="cancel-btn" onclick="showPage('main')">메인으로 돌아가기</button>
-                `;
-                return;
-            }
-
-            const isNoImage = !isValidImageUrl(item.imageUrl);
-            const displayImageUrl = isNoImage ? NO_IMAGE_PLACEHOLDER : item.imageUrl;
-            
-            let imageHtml = '';
-            if (isNoImage) {
-                imageHtml = `<div class="image-container no-image-detail">${NO_IMAGE_TEXT}</div>`;
-            } else {
-                imageHtml = `<div class="image-container"><img src="${displayImageUrl}" alt="${item.name} 이미지"></div>`;
-            }
-            
-            // 신청 폼에 사용될 부서 드롭다운을 미리 렌더링합니다.
-            renderDeptSelect('applyDept'); 
-
-            detailPage.innerHTML = `
-                <h3>⭐ 나눔 신청: ${item.name}</h3>
-                
-                <div class="item-detail-info">
-                    ${imageHtml}
-                    <div class="text-content">
-                        <h2>${item.name}</h2>
-                        <p>${item.description.replace(/\n/g, '<br>')}</p>
-                        
-                        <strong>카테고리: ${item.category || '미분류'}</strong>
-                        <strong>등록일: ${item.registerDate || '-'}</strong>
-                    </div>
-                </div>
-
-                <div class="application-form-section">
-                    <h4>📝 신청자 정보 입력</h4>
-                    <p>나눔을 신청하기 위해 본인의 정보를 정확하게 입력해주세요. 이 정보는 물품 등록자의 부서 관리자에게 전달되어 나눔 확정 시 연락에 사용됩니다.</p>
-                    
-                    <div class="info-group">
-                        <input type="text" id="applyName" placeholder="이름 (필수)">
-                        <select id="applyDept">
-                            </select>
-                        <input type="text" id="applyTeam" placeholder="팀 (필수)">
-                        <input type="text" id="applyId" placeholder="고유번호 (필수)">
-                    </div>
-
-                    <div class="form-actions">
-                        <button class="trade-apply-btn" onclick="submitTradeApplication()">나눔 신청</button>
-                        <button class="cancel-btn" onclick="showPage('main')">뒤로가기</button>
-                    </div>
-                </div>
-            `;
-            // renderDeptSelect를 다시 호출하여 applyDept 엘리먼트가 생성된 후 채워지도록 함
-            renderDeptSelect('applyDept');
-        }
-
-        // --- 신청 폼 제출 함수 (수정) ---
-        function submitTradeApplication() {
-            const item = items.find(i => i.id === currentItemId);
-            if (!item || item.status !== '판매 중') {
-                alert('신청할 수 없는 물품입니다.');
-                showPage('main');
-                return;
-            }
-
-            const applyInfo = {
-                name: document.getElementById('applyName').value.trim(),
-                dept: document.getElementById('applyDept').value,
-                team: document.getElementById('applyTeam').value.trim(),
-                id: document.getElementById('applyId').value.trim()
-            };
-
-            if (!applyInfo.name || !applyInfo.dept || !applyInfo.team || !applyInfo.id) {
-                alert('이름, 부서, 팀, 고유번호 네 가지 정보를 모두 입력해주세요.');
-                return;
-            }
-
-            // 기존 신청자 정보와 중복 확인 (간단한 중복 방지: 동일 고유번호로 예약 중인 물품이 있는지 확인)
-            const existingBuyer = items.find(i => 
-                i.status === '예약중' && 
-                i.historyBuyerInfo && 
-                i.historyBuyerInfo.id === applyInfo.id
-            );
-            
-            if (existingBuyer) {
-                 alert(`이미 다른 물품에 신청(예약) 중이므로 신청할 수 없습니다.`);
-                 return;
-            }
-
-            item.status = '예약중'; 
-            item.historyStatus = '신청 중'; 
-            item.historyBuyerInfo = applyInfo; 
-            
-            alert(`물품 [${item.name}]에 신청이 완료되었습니다. 물품 등록자 부서(${item.requesterInfo.dept}) 관리자의 1단계 승인을 기다려주세요.`);
-            showPage('main');
-        }
-
-
-        // 🚀 추가: 관리자 권한 확인 함수
-        function checkAdminAuth(item, actionType) {
-            if (!isAdmin) return false;
-            
-            let targetDept = null;
-            
-            if (actionType === 'register_approve' || actionType === 'delete' || actionType === 'edit') {
-                // 등록 승인 및 삭제/수정은 등록자의 부서 관리자 권한
-                targetDept = item.requesterInfo.dept;
-            } else if (actionType === 'trade_action') {
-                 // 예약 신청 승인/거절/완료는 등록자 부서 관리자 권한 (신청자와의 거래를 등록자 부서 관리자가 관리)
-                targetDept = item.requesterInfo.dept;
-            } 
-            
-            // 삭제의 경우, 등록자가 신청자가 아닌 경우 등록자 부서 관리자가 삭제 권한을 가짐.
-            // 여기서는 모든 관리자가 삭제 및 수정을 할 수 있게 하거나, 등록 승인/거래 관리처럼 부서 분담을 따르도록 설정할 수 있습니다.
-            // 요구사항에 따라 등록자 부서 관리자만 삭제/수정 가능하도록 설정합니다.
-            
-            return adminDept === targetDept;
-        }
-
-        // --- 관리자 목록 관련 함수 (부서 권한 체크 적용) ---
-        function renderAdminList() {
-            if (!isAdmin) return;
-
-            const listContainer = document.getElementById('adminListContainer');
-            listContainer.innerHTML = '';
-            
-            // '승인 대기' 또는 '예약중'인 항목만 필터링
-            const adminItems = items.filter(item => item.status === '승인 대기' || item.status === '예약중');
-            
-            if (adminItems.length === 0) {
-                 listContainer.innerHTML = '<p style="text-align: center; color: #555; padding: 20px; margin: 0;">현재 관리 대기 중인 물품이 없습니다.</p>';
-                 return;
-            }
-
-            adminItems.forEach(item => {
-                let actions = '';
-                let displayStatus = '';
-                let buyerInfoDisplay = '신청자 없음';
-
-                if (item.historyBuyerInfo) {
-                    const info = item.historyBuyerInfo;
-                    buyerInfoDisplay = `신청자: ${info.name} (${info.dept} ${info.team} / ${info.id})`;
-                }
-                
-                // 🚀 권한 확인
-                const canApproveRegister = checkAdminAuth(item, 'register_approve'); // 등록 승인 권한 (등록자 부서)
-                const canManageTrade = checkAdminAuth(item, 'trade_action'); // 거래 관리 권한 (등록자 부서)
-
-                if (item.status === '승인 대기') {
-                    displayStatus = '등록 승인 대기';
-                    
-                    if(canApproveRegister) {
-                        actions = `
-                            <button class="admin-action-btn approve-btn" onclick="approveItem(${item.id})">✅ 등록 승인</button>
-                            <button class="admin-action-btn delete-btn item-delete-btn" data-item-id="${item.id}">❌ 삭제</button>
-                        `;
-                    } else {
-                        actions = `<button class="admin-action-btn approve-btn disabled-btn">❌ 권한 없음</button>`;
-                        displayStatus += ` <span class="unauthorized">(타 부서: ${item.requesterInfo.dept})</span>`;
+                    else if(item.historyStatus==='예약 승인'){ 
+                        displayStatus='2차 대기 (거래 완료)'; 
+                        const reqDept = item.historyBuyerInfo?item.historyBuyerInfo.dept:'신청자 없음'; 
+                        if(canConfirmTrade) actions=`<button class="primary" onclick="confirmTrade(${item.id})">📦 2차 거래 완료</button> <button class="cancel-btn" onclick="cancelTradeByAdmin(${item.id})">🚫 예약 취소</button>`; 
+                        else actions=`<button class="pill disabled">권한 없음 (담당: ${reqDept})</button>` 
                     }
-                } else if (item.status === '예약중') {
-                    
-                    if (item.historyStatus === '신청 중') {
-                        displayStatus = '예약 대기 (1단계)'; 
-                        if(canManageTrade) {
-                             actions = `
-                                <button class="admin-action-btn approve-trade-btn" onclick="approveTrade(${item.id})">✅ 신청 승인</button> 
-                                <button class="admin-action-btn cancel-trade-btn" onclick="cancelTradeByAdmin(${item.id})">❌ 신청 거절</button>
-                            `;
-                        } else {
-                            actions = `<button class="admin-action-btn approve-trade-btn disabled-btn">❌ 권한 없음</button>`;
-                            displayStatus += ` <span class="unauthorized">(타 부서: ${item.requesterInfo.dept})</span>`;
-                        }
-
-                    } else if (item.historyStatus === '예약 승인') {
-                        displayStatus = '예약 확정 (2단계)'; 
-                        if(canManageTrade) {
-                            actions = `
-                                <button class="admin-action-btn confirm-trade-btn" onclick="confirmTrade(${item.id})">📦 나눔 완료</button> 
-                                <button class="admin-action-btn cancel-trade-btn" onclick="cancelTradeByAdmin(${item.id})">🚫 예약 취소</button>
-                            `;
-                        } else {
-                            actions = `<button class="admin-action-btn confirm-trade-btn disabled-btn">❌ 권한 없음</button>`;
-                            displayStatus += ` <span class="unauthorized">(타 부서: ${item.requesterInfo.dept})</span>`;
-                        }
-                    } else {
-                         displayStatus = '예약중 (상태 오류)';
-                    }
+                    else displayStatus='예약중 (상태 오류)';
                 }
+
+                // 🛠️ 변경: 첫 번째 이미지를 썸네일로 사용
+                const firstImageUrl = getDisplayImage(item, 0);
+                const isNoImage = firstImageUrl === null;
+                const displayImageUrl = isNoImage?THUMBNAIL_PLACEHOLDER:firstImageUrl;
+                const thumb = isNoImage?`<div class="item-thumbnail-wrapper">${NO_IMAGE_TEXT}</div>`:`<div class="item-thumbnail-wrapper"><img class="item-thumbnail" src="${displayImageUrl}" alt="${item.name}"></div>`;
                 
-                
-                const isNoImage = !isValidImageUrl(item.imageUrl);
-                const displayImageUrl = isNoImage ? THUMBNAIL_PLACEHOLDER : item.imageUrl;
+                const card = document.createElement('div'); card.className='item-card admin-card'; card.style.cursor='default';
 
-                let thumbnailHtml = '';
-                if (isNoImage) {
-                    thumbnailHtml = `<div class="item-thumbnail-wrapper">${NO_IMAGE_TEXT}</div>`;
-                } else {
-                    thumbnailHtml = `<div class="item-thumbnail-wrapper"><img src="${displayImageUrl}" alt="${item.name} 이미지" class="item-thumbnail"></div>`;
+                // 신청자 정보 추가 로직 (팀 정보 제거)
+                let applicantInfoHtml = '';
+                if (item.status === '예약중' && item.historyBuyerInfo) {
+                    const buyer = item.historyBuyerInfo;
+                    applicantInfoHtml = `<div style="margin-top:4px;font-size:0.9em;color:var(--accent)"><strong>신청 부서:</strong> ${buyer.dept} | 신청자: ${buyer.name}</div>`;
                 }
-                
-                const card = document.createElement('div');
-                card.classList.add('item-card', 'admin-card'); 
-                card.style.cursor = 'default'; 
 
-                card.innerHTML = `
-                    ${thumbnailHtml}
-                    <div class="item-content">
-                        <div class="item-header">
-                            <span class="item-name" title="${item.name}">${item.name}</span>
-                            <span class="item-status ${getStatusClass(item.status)}">${displayStatus}</span>
-                        </div>
-                        <div class="admin-info">
-                            카테고리: ${item.category || '미분류'} | 등록일: ${item.registerDate || '-'}
-                        </div>
-                        <div class="admin-info">
-                            <strong>등록자 부서: ${item.requesterInfo.dept}</strong> | 등록자: ${item.requesterInfo.name} (${item.requesterInfo.id})
-                        </div>
-                        <div class="admin-info">${buyerInfoDisplay}</div>
-                        <div class="item-actions" style="margin-top: 10px;">
-                            ${actions}
-                        </div>
-                    </div>
-                `;
-                
-                listContainer.appendChild(card);
-                
-                // 삭제 버튼 이벤트 리스너는 권한 확인 후에도 달아야 함 (권한이 없으면 버튼이 안 뜸)
-                if (item.status === '승인 대기' && canApproveRegister) {
-                    const deleteButton = card.querySelector(`.admin-action-btn.delete-btn[data-item-id="${item.id}"]`);
-                    if (deleteButton) {
-                        deleteButton.addEventListener('click', (event) => {
-                            event.stopPropagation();
-                            deleteItem(item.id);
-                        });
-                    }
-                }
-            });
-        }
-        
-        function updateAdminButtonStatus() {
-            const adminListBtn = document.getElementById('adminListBtn');
-            const adminPageVisible = document.getElementById('adminListPage').style.display !== 'none';
-            const registrationPageVisible = document.getElementById('registrationFormPage').style.display !== 'none';
-
-            if (isAdmin && !adminPageVisible && !registrationPageVisible) {
-                // 관리자 목록에 있는 항목의 개수를 다시 계산하여 표시
-                const adminCount = items.filter(item => item.status === '승인 대기' || item.status === '예약중').length;
-                adminListBtn.style.display = 'inline-block';
-                adminListBtn.textContent = `🚨 관리 목록 (${adminCount}건) [${adminDept}]`; 
-            } else {
-                adminListBtn.style.display = 'none';
-            }
-        }
-        
-        // --- 기타 기능 (파일, 등록, 검색 등) ---
-
-        function convertFileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                const maxSizeInBytes = 2 * 1024 * 1024; // 2MB
-                if (file.size > maxSizeInBytes) {
-                     reject(new Error("File size exceeds 2MB limit."));
-                     return;
-                }
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-                reader.readAsDataURL(file);
-            });
+                // 등록자 정보에서 '팀' 제거
+                card.innerHTML = `${thumb}<div class="item-content"><div class="item-header"><span class="item-name">${item.name}</span><span class="item-status ${getStatusClass(item.status)}">${displayStatus}</span></div><div class="item-info">카테고리: ${item.category||'미분류'} | 등록일: ${item.registerDate||'-'}</div><div style="margin-top:6px;font-size:0.9em"><strong>등록 부서:</strong> ${item.requesterInfo.dept} | 등록자: ${item.requesterInfo.name}</div>${applicantInfoHtml}<div style="margin-top:8px" class="item-actions">${actions}</div></div>`;
+                list.appendChild(card);
+            })
         }
 
-        async function addItemAsync() {
-            const name = document.getElementById('itemName').value.trim();
-            const rName = document.getElementById('requesterName').value.trim();
-            const rDept = document.getElementById('requesterDept').value; 
-            const rTeam = document.getElementById('requesterTeam').value.trim();
-            const rId = document.getElementById('requesterId').value.trim();
-            const category = document.getElementById('itemCategory').value; 
-            const description = document.getElementById('itemDescription').value.trim(); 
-            const file = document.getElementById('itemImageFile').files[0];
-
-            if (!name || !description || !category || !rName || !rDept || !rTeam || !rId) {
-                alert('물품 이름, 등록자 정보(이름, 부서, 팀, 고유번호), 카테고리, 상세 설명을 모두 입력해주세요.');
-                return;
-            }
-
-            let imageUrl = '';
-
-            if (file) {
-                try {
-                    imageUrl = await convertFileToBase64(file);
-                } catch (error) {
-                    console.error('파일 변환 오류:', error);
-                    alert('이미지 파일 변환에 실패했거나 파일 크기가 너무 큽니다 (최대 2MB).');
-                    return;
-                }
-            } else {
-                 imageUrl = '';
-            }
-
-            const newId = items.length > 0 ? Math.max(...items.map(i => i.id)) + 1 : 1;
-
-            items.push({ 
-                id: newId, 
-                name: name, 
-                status: '승인 대기', 
-                description: description,
-                imageUrl: imageUrl,
-                registerDate: getTodayDate(),
-                category: category, 
-                historyStatus: '신청 없음',
-                requesterInfo: { name: rName, dept: rDept, team: rTeam, id: rId },
-                historyBuyerInfo: null 
-            });
-            
-            alert(`물품 [${name}]이(가) 등록 요청되었습니다. 등록자 부서(${rDept}) 관리자의 승인을 기다려주세요.`);
-
-            showPage('main');
+        function updateAdminButtonStatus(){
+            const footer = document.querySelector('footer'); const adminListBtn = document.getElementById('adminListBtn'); const existingLogout = document.getElementById('dynamicLogoutBtn'); if(existingLogout) existingLogout.remove();
+            const adminPageVisible = document.getElementById('adminListPage').style.display !== 'none'; const registrationVisible = document.getElementById('registrationFormPage').style.display !== 'none';
+            if(isAdmin){ footer.style.display='flex'; if(!adminPageVisible && !registrationVisible){ const adminCount = items.filter(i=> i.status==='승인 대기' || i.status==='예약중').length; adminListBtn.style.display='inline-block'; adminListBtn.textContent = `🚨 관리 목록 (${adminCount}건) [${adminDept}]`; const logoutBtn=document.createElement('button'); logoutBtn.id='dynamicLogoutBtn'; logoutBtn.textContent='관리자 로그아웃'; logoutBtn.onclick = logoutAdmin; footer.appendChild(adminListBtn); footer.appendChild(logoutBtn);
+                } else { adminListBtn.style.display='none'; const logoutBtn=document.createElement('button'); logoutBtn.id='dynamicLogoutBtn'; logoutBtn.textContent=`로그아웃 (${adminDept})`; logoutBtn.onclick = logoutAdmin; footer.appendChild(logoutBtn); }
+            } else { footer.style.display='none'; adminListBtn.style.display='none'; }
         }
 
-        function searchItems() {
-            const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
-            
-            let searchTargetItems = items.filter(item => item.status !== '승인 대기');
-            
-            const filteredItems = searchTargetItems.filter(item => 
-                item.name.toLowerCase().includes(searchTerm) || 
-                item.description.toLowerCase().includes(searchTerm)
-            );
-
-            renderItems(filteredItems);
-        }
-
-        document.getElementById('searchInput').addEventListener('input', searchItems);
-
-        
-        // --- 관리자 로그인/로그아웃 (수정) ---
-        function toggleAdminLogin() {
-            if (isAdmin) {
-                logoutAdmin();
-            } else {
-                loginAdmin();
-            }
-        }
-        function loginAdmin() {
-            const deptCode = prompt(`관리자 부서 코드를 입력하세요. (${departments.join(', ')} 중 하나)`);
-            if (deptCode === null) return;
-            const password = prompt(`[${deptCode}] 관리자의 비밀번호를 입력하세요. (부서별 비밀번호 예: 1부: dept1, 2부: dept2)`);
-            
-            if (password === null) return;
-
-            const expectedPassword = adminPasswords[deptCode];
-            
-            if (expectedPassword && password === expectedPassword) {
-                isAdmin = true;
-                adminDept = deptCode; // 🚀 로그인된 부서 저장
-                document.getElementById('adminLoginBtn').innerText = `${adminDept} 관리자 로그아웃`;
-                alert(`${adminDept} 관리자 로그인 성공.`);
-                showPage('main'); 
-            } else {
-                alert('부서 코드 또는 비밀번호가 틀렸습니다.');
-            }
-        }
-        function logoutAdmin() {
-            isAdmin = false;
-            adminDept = null; // 🚀 부서 정보 초기화
-            document.getElementById('adminLoginBtn').innerText = '관리자 로그인';
-            document.getElementById('adminListBtn').style.display = 'none'; 
-            showPage('main'); 
-        }
-        
-        // --- 관리자 액션 (권한 확인 로직 추가) ---
-        function approveTrade(itemId) {
-            const item = items.find(i => i.id === itemId);
-            if (!checkAdminAuth(item, 'trade_action')) {
-                alert(`권한이 없습니다. 이 거래는 ${item.requesterInfo.dept} 관리자만 승인할 수 있습니다.`);
-                return;
-            }
-            // 상태 확인: 신청 중 상태일 때만 승인 가능
-            if (item && item.status === '예약중' && item.historyStatus === '신청 중') { 
-                item.historyStatus = '예약 승인'; 
-                alert(`${item.name}의 나눔 신청이 1단계 승인되어 '예약 확정' 상태로 변경되었습니다. 이제 최종 나눔 완료 처리가 가능합니다.`);
-                showPage('adminListPage'); 
-            } else {
-                alert('잘못된 상태입니다. 신청 중인 물품만 승인 가능합니다.');
-            }
-        }
-        function confirmTrade(itemId) {
-            const item = items.find(i => i.id === itemId);
-            if (!checkAdminAuth(item, 'trade_action')) {
-                alert(`권한이 없습니다. 이 거래는 ${item.requesterInfo.dept} 관리자만 완료 처리할 수 있습니다.`);
-                return;
-            }
-            // 상태 확인: 예약 승인 상태일 때만 완료 가능
-            if (item && item.status === '예약중' && item.historyStatus === '예약 승인') { 
-                item.status = '거래 완료'; item.historyStatus = '거래 확정';
-                alert(`${item.name}의 거래가 최종 확정되어 '나눔 완료' 상태로 변경되었습니다.`); 
-                showPage('adminListPage');
-            } else {
-                alert('잘못된 상태입니다. 예약 확정된 물품만 나눔 완료 처리 가능합니다.');
-            }
-        }
-        function approveItem(itemId) {
-            const item = items.find(i => i.id === itemId);
-            if (!checkAdminAuth(item, 'register_approve')) {
-                alert(`권한이 없습니다. 이 등록은 ${item.requesterInfo.dept} 관리자만 승인할 수 있습니다.`);
-                return;
-            }
-            if (item && item.status === '승인 대기') {
-                item.status = '판매 중'; 
-                alert(`${item.name} 물품이 목록에 등록(승인)되었습니다.`);
-                showPage('adminListPage'); 
-            }
-        }
-        function deleteItem(itemId) {
-            const item = items.find(i => i.id === itemId);
-            // 삭제 권한도 등록자 부서 관리자에게만 부여
-            if (!checkAdminAuth(item, 'register_approve')) { 
-                alert(`권한이 없습니다. 이 물품은 ${item.requesterInfo.dept} 관리자만 삭제할 수 있습니다.`);
-                return;
-            }
-            
-            if (confirm(`정말로 이 물품 (${item.name})을 삭제하시겠습니까?`)) {
-                const index = items.findIndex(i => i.id === itemId);
-                if (index > -1) {
-                    items.splice(index, 1);
-                    // 삭제 후 현재 페이지에 따라 목록을 새로고침
-                    if (document.getElementById('adminListPage').style.display !== 'none') {
-                        showPage('adminListPage');
-                    } else {
-                        showPage('main');
-                    }
-                }
-            }
-        }
-        function cancelTradeByAdmin(itemId) {
-            const item = items.find(i => i.id === itemId);
-            if (!checkAdminAuth(item, 'trade_action')) {
-                alert(`권한이 없습니다. 이 거래 취소는 ${item.requesterInfo.dept} 관리자만 처리할 수 있습니다.`);
-                return;
-            }
-
-            if (item && item.status === '예약중') {
-                const action = item.historyStatus === '신청 중' ? '신청 거절' : '예약 취소';
-                if (confirm(`${item.name}에 대한 ${action}을 진행하고 '신청 가능' 상태로 되돌리시겠습니까?`)) {
-                    item.historyStatus = '신청 없음'; 
-                    item.historyBuyerInfo = null;
-                    item.status = '판매 중'; 
-                    alert(`${item.name}의 ${action}이 완료되고 '신청 가능' 상태로 복귀했습니다.`);
-                    showPage('adminListPage'); 
-                }
-            }
-        }
-        
-        // --- 수정 기능 (관리자 전용, 권한 확인 로직 추가) ---
         function editItem(itemId) {
             const item = items.find(i => i.id === itemId);
-             // 수정 권한도 등록자 부서 관리자에게만 부여
-            if (!checkAdminAuth(item, 'register_approve')) { 
-                alert(`권한이 없습니다. 이 물품은 ${item.requesterInfo.dept} 관리자만 수정할 수 있습니다.`);
-                return;
-            }
             if (!item) return;
-            
-            const newName = prompt(`[${item.name}]의 새 물품 이름을 입력하세요:`, item.name);
-            if (newName === null) return; 
-            const newDescription = prompt(`[${item.name}]의 새 상세 설명을 입력하세요:`, item.description);
-            if (newDescription === null) return;
+            if (!checkAdminAuth(item, 'edit')) { alert('수정 권한이 없습니다.'); return; }
 
-            const newCategory = prompt(`[${item.name}]의 새 카테고리를 입력하세요 (현재: ${item.category || '미분류'}):`, item.category);
+            const newName = prompt(`[${item.name}]의 새 물품 이름을 입력하세요 (현재: ${item.name}):`, item.name);
+            if (newName === null) return;
+            const newDescription = prompt(`[${item.name}]의 새 상세 설명 (현재: ${item.description.substring(0, 20)}...):`, item.description);
+            if (newDescription === null) return;
+            const newCategory = prompt(`[${item.name}]의 새 카테고리를 입력하세요 (현재: ${item.category}).\n선택 가능: ${categories.join(', ')}`, item.category);
             if (newCategory === null) return;
+            if (!categories.includes(newCategory.trim())) { alert('유효하지 않은 카테고리입니다. 기존 카테고리가 유지됩니다.'); return; }
 
             const newRName = prompt(`[${item.name}] 등록자 이름 (현재: ${item.requesterInfo.name}):`, item.requesterInfo.name);
             if (newRName === null) return;
 
-            // 부서 정보도 수정 가능하게 하지만, 목록에 있는 부서만 허용
+            // 부서 변경 로직 
             let newRDept = item.requesterInfo.dept;
-            let deptPrompt = `[${item.name}] 등록자 부서 (현재: ${item.requesterInfo.dept})\n\n선택 가능한 부서: ${departments.join(', ')}\n새 부서를 입력하세요:`;
+            // 🛠️ 부서명 목록 변경 적용
+            const deptPrompt = `[${item.name}] 등록자 부서 (현재: ${item.requesterInfo.dept})\n\n선택 가능한 부서: ${departments.join(', ')}\n새 부서를 입력하세요:`;
             let inputDept = prompt(deptPrompt, item.requesterInfo.dept);
 
             if (inputDept === null) return;
@@ -1590,28 +716,163 @@
             } else {
                  alert('유효하지 않은 부서입니다. 기존 부서가 유지됩니다.');
             }
-
-            const newRTeam = prompt(`[${item.name}] 등록자 팀 (현재: ${item.requesterInfo.team}):`, item.requesterInfo.team);
-            if (newRTeam === null) return;
-            const newRId = prompt(`[${item.name}] 등록자 고유번호 (현재: ${item.requesterInfo.id}):`, item.requesterInfo.id);
-            if (newRId === null) return;
-
-            const newImageUrl = prompt(`[${item.name}]의 새 이미지 URL을 입력하세요 (변경하지 않으려면 공백):`, item.imageUrl);
             
+            // 🛠️ 변경: 이미지 배열을 다루기 복잡하므로, 수정 시에는 '대표 이미지 URL'을 새로 입력 받거나 기존 것을 유지하도록 단순화합니다.
+            const currentMainImageUrl = getDisplayImage(item, 0) || '없음';
+            const newMainImageUrl = prompt(`[${item.name}]의 새 대표 이미지 URL을 입력하세요 (현재: ${currentMainImageUrl}).\n변경하지 않으려면 '유지'를 입력하세요:`, currentMainImageUrl);
+            
+            if (newMainImageUrl === null) return;
+
+            // 기본 정보 업데이트
             item.name = newName.trim();
             item.description = newDescription.trim();
             item.category = newCategory.trim();
             item.requesterInfo.name = newRName.trim();
             item.requesterInfo.dept = newRDept.trim(); 
-            item.requesterInfo.team = newRTeam.trim();
-            item.requesterInfo.id = newRId.trim();
+            item.requesterInfo.team = ''; // 팀은 빈 값으로 저장
+            
+            // 이미지 업데이트: '유지'가 아니면서 공백이 아닐 경우 첫 번째 URL만 업데이트
+            if (newMainImageUrl !== '유지' && newMainImageUrl.trim() !== currentMainImageUrl && newMainImageUrl.trim() !== '없음') {
+                 // 기존 배열을 유지하면서 첫 번째 요소만 업데이트
+                 item.imageUrls = [newMainImageUrl.trim(), ...item.imageUrls.slice(1)].filter(url => url.trim() !== '');
+                 if(item.imageUrls.length === 0) item.imageUrls = []; // 모두 빈 문자열일 경우 빈 배열로
+            }
 
-            if (newImageUrl !== null && newImageUrl.trim() !== "") { item.imageUrl = newImageUrl.trim(); }
 
-            alert(`물품 [${item.id}]의 정보가 수정되었습니다. (관리 부서: ${item.requesterInfo.dept})`);
+            alert(`물품 [${item.name}]의 정보가 수정되었습니다.`);
             showPage('main');
         }
+
+        // ========== 관리자 액션 구현 ==========
+        function approveItem(itemId){ const idx = items.findIndex(i=>i.id===itemId); if(idx<0) return; const it = items[idx]; if(!checkAdminAuth(it,'register_approve')){ alert('권한이 없습니다.'); return } it.status='판매 중'; it.registerDate = getTodayDate(); alert(`물품 [${it.name}] 등록이 승인되어 '판매 중' 상태가 됩니다.`); renderAdminList(); showPage('main'); }
+        function deleteItem(itemId){ const idx = items.findIndex(i=>i.id===itemId); if(idx<0) return; const it=items[idx]; if(!isAdmin || adminDept!==it.requesterInfo.dept){ if(!confirm('관리자 권한이 없어도 삭제할 수 있습니다. 계속 진행할까요?')) return; }
+            if(!confirm(`물품 [${it.name}]을(를) 정말 삭제하시겠습니까?`)) return; items.splice(idx,1); alert('삭제 완료'); renderAdminList(); showPage('main'); }
+        function approveTrade(itemId){ const it = items.find(i=>i.id===itemId); if(!it) return; if(!checkAdminAuth(it,'trade_approve')){ alert('권한 없음'); return } it.historyStatus='예약 승인'; // 1차 -> 2차 대기
+            alert(`신청 승인 완료. 신청자 부서(${it.historyBuyerInfo?it.historyBuyerInfo.dept:'-'})의 관리자 확인 대기`); renderAdminList(); showPage('main'); }
+        function cancelTradeByAdmin(itemId){ const it = items.find(i=>i.id===itemId); if(!it) return; if(!isAdmin){ alert('관리자 권한 필요'); return } // 권한 체크는 상황에 따라 이미 적용된 버튼만 표시됨
+            it.status='판매 중'; it.historyStatus='신청 없음'; it.historyBuyerInfo=null; alert('예약/신청이 취소되었습니다.'); renderAdminList(); showPage('main'); }
+        function confirmTrade(itemId){ const it = items.find(i=>i.id===itemId); if(!it) return; if(!checkAdminAuth(it,'trade_confirm')){ alert('권한 없음'); return } it.status='거래 완료'; it.historyStatus='거래 확정'; alert(`물품 [${it.name}] 거래가 완료 처리되었습니다.`); renderAdminList(); showPage('main'); }
+
+        // ========== 신청 처리 ==========
+        function renderItemDetailPage(itemId){ 
+            const item = items.find(i=>i.id===itemId); 
+            const detailPage = document.getElementById('itemDetailPage'); 
+            currentItemId=itemId; 
+            if(!item || item.status!=='판매 중'){ detailPage.innerHTML=`<h3>🚫 나눔 신청 불가</h3><p>이 물품은 현재 신청 가능한 상태가 아닙니다.</p><button class="cancel-btn" onclick="showPage('main')">🔙 뒤로가기</button>`; return }
+            
+            // 🛠️ 변경: 첫 번째 이미지를 대표 이미지로 사용
+            const firstImageUrl = getDisplayImage(item, 0);
+            const isNoImage = firstImageUrl === null; 
+            const displayImageUrl = isNoImage?NO_IMAGE_PLACEHOLDER:firstImageUrl; 
+            // 신청 페이지에서는 이미지를 클릭해도 확대 기능을 제공하지 않습니다.
+            const imageHtml = isNoImage?`<div class="image-container" style="height:150px;background:#e0e0e0;display:flex;align-items:center;justify-content:center;font-weight:700">${NO_IMAGE_TEXT}</div>`:`<div class="image-container"><img src="${displayImageUrl}" alt="${item.name}"></div>`;
+            
+            renderDeptSelect('applyDept');
+            // 나눔 신청 폼에서 '팀' 필드 제거 및 이름 placeholder 변경
+            detailPage.innerHTML = `<h3>⭐ 나눔 신청: ${item.name}</h3><div class="item-detail-info" style="display:flex;gap:16px;margin-top:12px">${imageHtml}<div class="text-content"><h2 style="margin:0">${item.name}</h2><p style="white-space:pre-wrap">${item.description}</p><strong>카테고리: ${item.category||'미분류'}</strong><strong style="display:block;margin-top:6px">등록일: ${item.registerDate||'-'}</strong></div></div><div style="margin-top:14px;padding:12px;border:2px solid var(--success);border-radius:10px;background:#f0fff0"><h4 style="margin:0 0 8px">📝 신청자 정보 입력</h4><p style="margin:0 0 8px">아래 정보 입력 후 나눔신청을 눌러주세요. <br>담당자 승인 후 연락 예정입니다.</p><div class="info-group" style="margin-top:8px"><input type="text" id="applyName" placeholder="이름+알파벳 (예: 김나눔a)"><select id="applyDept"></select></div><div style="margin-top:12px"><button class="primary" onclick="submitTradeApplication()">나눔 신청</button> <button class="cancel-btn" onclick="showPage('main')">🔙 뒤로가기</button></div></div>`; renderDeptSelect('applyDept'); 
+        }
+
+        function submitTradeApplication(){ 
+            const item = items.find(i=>i.id===currentItemId); 
+            if(!item || item.status!=='판매 중'){ alert('신청할 수 없는 물품입니다.'); showPage('main'); return }
+            
+            // '팀' 필드 제거 반영
+            const applyInfo = { 
+                name: (document.getElementById('applyName').value||'').trim(), 
+                dept: document.getElementById('applyDept').value, 
+                team: '', // '팀'은 빈 값으로 저장
+                id: '' 
+            };
+            
+            // '팀' 유효성 검사 제거 반영
+            if(!applyInfo.name||!applyInfo.dept){ alert('이름과 부서를 모두 입력해주세요.'); return }
+
+            item.status='예약중'; item.historyStatus='신청 중'; item.historyBuyerInfo=applyInfo; alert(`물품 [${item.name}] 나눔 신청 완료. 담당자 승인 후 연락 예정입니다..`); showPage('main'); 
+        }
+
+        // ========== 파일 업로드 & 등록 요청 처리 ==========
         
+        // 🛠️ 변경: 멀티 파일 처리 및 유효성 검사 로직 업데이트
+        async function addItemAsync(){
+            const name = (document.getElementById('itemName').value||'').trim(); 
+            const rName=(document.getElementById('requesterName').value||'').trim(); 
+            const rDept=document.getElementById('requesterDept').value; 
+            const rId = ''; 
+            const category=document.getElementById('itemCategory').value; 
+            const description=(document.getElementById('itemDescription').value||'').trim(); 
+            
+            // 🛠️ 변경: 다중 파일 입력 필드 ID 사용
+            const files = document.getElementById('itemImageFiles').files;
+            
+            if(!name||!description||!category||!rName||!rDept){ 
+                alert('물품 이름, 등록자 정보(이름, 부서), 카테고리, 상세 설명을 모두 입력해주세요.'); 
+                return 
+            }
+
+            // 파일 개수 유효성 검사 (1~3장)
+            if (files.length === 0) {
+                alert('물품 사진을 최소 1장 이상 등록해주세요.');
+                return;
+            }
+            if (files.length > 3) {
+                alert('물품 사진은 최대 3장까지만 등록 가능합니다. 3장 이하로 다시 선택해주세요.');
+                return;
+            }
+            
+            let imageUrls = []; // 배열로 Base64 문자열 저장
+            try{ 
+                // 모든 파일을 Base64로 변환 (5MB 제한 적용됨)
+                const conversionPromises = Array.from(files).map(file => convertFileToBase64(file));
+                imageUrls = await Promise.all(conversionPromises);
+                imageUrls = imageUrls.filter(url => url && url.trim() !== ''); // 빈 문자열 제거
+            }catch(err){ 
+                console.error('파일 변환 오류',err); 
+                // 5MB 제한 반영된 에러 메시지
+                alert(`이미지 파일 변환에 실패했습니다. 파일당 최대 5MB 이하로 시도해 주세요. (${err.message})`); 
+                return 
+            }
+            
+            const newId = items.reduce((m,i)=>Math.max(m,i.id),0)+1;
+            
+            // 🛠️ 변경: imageUrl -> imageUrls 배열 저장
+            const newItem = { 
+                id:newId, name, status:'승인 대기', description, 
+                imageUrls: imageUrls, 
+                historyStatus:'신청 없음', category, 
+                requesterInfo:{name:rName,dept:rDept,team:'',id:rId}, 
+                historyBuyerInfo:null, registerDate:getTodayDate() 
+            };
+            
+            items.unshift(newItem); 
+            alert(`물품 등록 요청이 접수되었습니다. 관리자의 승인 대기 상태입니다. (id:${newId})`);
+            
+            // 폼 초기화
+            document.getElementById('itemName').value=''; 
+            document.getElementById('requesterName').value=''; 
+            document.getElementById('requesterDept').value=''; 
+            document.getElementById('itemCategory').value=''; 
+            document.getElementById('itemDescription').value=''; 
+            // 🛠️ 변경: 파일 입력 필드 ID
+            document.getElementById('itemImageFiles').value='';
+            
+            showPage('main');
+        }
+
+        // ========== 초기 이벤트 바인딩 및 시작 ==========
+        document.getElementById('searchInput').addEventListener('input',()=>{ 
+            const v=document.getElementById('searchInput').value; 
+            document.getElementById('clearSearchBtn').style.display = v.trim()? 'inline-block':'none'; 
+            searchItems(); 
+        });
+
+        // 초기화
+        window.onload = ()=>{ 
+            showPage('main'); 
+            renderCategoryGrid(); 
+            renderCategorySelect(); 
+            renderDeptSelect('requesterDept'); 
+        }
+
     </script>
 </body>
 </html>
