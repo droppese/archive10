@@ -19,7 +19,7 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Verdana, sans-serif;
             background-color: var(--bg); 
             margin: 0;
             padding: 20px; 
@@ -77,6 +77,25 @@
             border-color: var(--accent);
         }
 
+        /* 현재 카테고리 표시 스타일 */
+        #currentCategoryDisplay {
+            display: none; /* JS로 제어 */
+            margin-bottom: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background: #eef7ff; /* 연한 파랑 배경 */
+            border: 1px solid var(--accent);
+            border-radius: 6px;
+        }
+        #selectedCategoryName {
+            color: var(--accent);
+            font-size: 1.1em;
+            font-weight: 800;
+        }
+
         /* ========== 리스트 카드 ========== */
         .list-container{display:flex;flex-direction:column;gap:14px}
         .item-card{display:flex;align-items:flex-start;padding:12px;border-radius:8px;border:1px solid #ecf0f1;background:#fff;box-shadow:0 4px 8px rgba(0,0,0,0.03);cursor:pointer}
@@ -96,17 +115,70 @@
         .status-cancelled{color:var(--danger);font-weight:700}
 
         .detail-row{display:none;width:100%;background:#f6f8fa;padding:14px;border-radius:8px;border:1px dashed #ddd;margin-top:-6px;box-sizing:border-box}
-        .detail-image-box{max-width:100%;height:auto;border-radius:8px;border:1px solid #ccc;padding:6px;background:#ecf0f1}
-        .detail-image-box img{max-width:100%;height:auto;display:block}
         
-        /* 이미지 크기 제한*/
-        .image-container img {
-            width: 100%;
-            max-width: 400px;
-            height: auto;
-            object-fit: contain;
+        /* 다중 이미지 컨테이너 스타일 */
+        .detail-image-gallery{
+            display:flex;
+            overflow-x:auto; /* 가로 스크롤 가능하게 */
+            gap:8px;
+            padding:10px 0;
+            border-bottom:1px solid #eee;
+            margin-bottom:10px;
+        }
+        .detail-image-box{
+            max-width:100%;
+            height:auto;
+            min-width:120px; /* 각 이미지 최소 너비 */
+            max-height:150px;
+            border-radius:8px;
+            border:1px solid #ccc;
+            padding:6px;
+            background:#ecf0f1;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            overflow:hidden;
+            cursor: pointer; /* 클릭 가능 표시 */
+        }
+        .detail-image-box img{
+            max-width:100%;
+            max-height:100%;
+            height:auto;
+            width:auto;
+            object-fit:contain;
+            display:block;
+            border-radius:4px;
+        }
+        /* No Image Placeholder */
+        .detail-no-image{
+             height:150px;
+             width:100%;
+             background:#e0e0e0;
+             display:flex;
+             align-items:center;
+             justify-content:center;
+             font-weight:700;
+             border-radius:8px;
+             margin-bottom:10px;
+        }
+        
+        /* item-detail-info 내 이미지 크기 제한 (신청 페이지) */
+        .item-detail-info .image-container {
+            flex-shrink: 0;
+            width: 150px;
+            height: 150px;
+            border: 1px solid #ccc;
             border-radius: 8px;
-            display: block;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .item-detail-info .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 0;
         }
 
         /* admin footer */
@@ -115,10 +187,56 @@
 
         /* form */
         .form-content input[type=text], .form-content select, .form-content textarea{width:100%;padding:10px;border-radius:6px;border:1px solid #ccc;box-sizing:border-box}
-        .info-group{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px;border-radius:8px;background:#eef7ff;border:1px dashed var(--accent)}
+        /* info-group: 3칸 -> 2칸으로 변경 (이름, 부서만 남음) */
+        .info-group{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:12px;border-radius:8px;background:#eef7ff;border:1px dashed var(--accent)}
 
         /* category grid */
         .category-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:12px}
+
+        /* ========== 이미지 확대 모달 스타일 ========== */
+        .image-modal {
+            display: none; /* 기본 숨김 */
+            position: fixed;
+            z-index: 200; /* 최상위 */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.9); /* 어두운 배경 */
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh; /* 화면 높이에 맞춤 */
+            object-fit: contain;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .modal-close:hover,
+        .modal-close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        /* ================================================= */
+
 
         /* responsive */
         @media(max-width:600px){
@@ -131,8 +249,9 @@
                 flex-direction: column;
                 align-items: center;
             }
-            .image-container img {
-                max-width: 90%;
+            .item-detail-info .image-container {
+                width: 100%;
+                height: 200px; /* 모바일에서 좀 더 크게 */
             }
         }
     </style>
@@ -155,15 +274,16 @@
                     <button class="accent" id="categoryButton" onclick="showPage('categoryPage')">🏷️ 카테고리</button>
                 </div>
                 <div id="registerButtonContainer" class="action-group">
-                    <button class="primary" onclick="showPage('registrationFormPage')">📦 물품 등록 요청</button>
+                    <button class="primary" onclick="showPage('registrationFormPage')">📦 내 물건 등록하기</button>
                 </div>
             </div>
 
-            <div id="currentCategoryDisplay" style="display:none;margin-bottom:12px;font-weight:700">
-                현재 카테고리: <span id="selectedCategoryName" style="color:var(--accent)"></span>
-                <button class="pill" onclick="filterByCategory(null)" style="margin-left:10px;padding:6px">초기화</button>
+            <div id="currentCategoryDisplay">
+                <div>
+                    현재 카테고리: <span id="selectedCategoryName"></span>
+                </div>
+                <button class="pill" onclick="filterByCategory(null)" style="padding:6px 10px;font-weight:600">🔄 초기화</button>
             </div>
-
             <div id="item-list-container" class="list-container"></div>
         </div>
 
@@ -185,23 +305,22 @@
         </div>
 
         <div id="registrationFormPage" style="display:none">
-            <h3>물품 등록 요청</h3>
+            <h3>내 물건 등록하기</h3>
             <div class="form-content">
                 <label class="form-label">물품 이름</label>
                 <input type="text" id="itemName" placeholder="물품 이름 (필수)" />
 
                 <label class="form-label" style="margin-top:12px">등록자 정보 (필수)</label>
                 <div class="info-group">
-                    <input type="text" id="requesterName" placeholder="이름 (필수)" />
+                    <input type="text" id="requesterName" placeholder="이름+알파벳 (예: 김나눔a)" />
                     <select id="requesterDept"></select>
-                    <input type="text" id="requesterTeam" placeholder="팀 (필수)" />
                 </div>
 
                 <label class="form-label" style="margin-top:12px">카테고리 선택</label>
                 <select id="itemCategory"></select>
 
-                <label class="form-label" style="margin-top:12px">물품 사진 파일 선택 (선택)</label>
-                <input type="file" id="itemImageFile" accept="image/*" />
+                <label class="form-label" style="margin-top:12px">물품 사진 파일 선택 (1~3장 필수, 파일당 최대 5MB)</label>
+                <input type="file" id="itemImageFiles" accept="image/*" multiple capture="environment" />
 
                 <label class="form-label" style="margin-top:12px">상세 설명 및 나눔 조건 (필수)</label>
                 <textarea id="itemDescription" rows="6" placeholder="상세 설명을 입력하세요"></textarea>
@@ -219,6 +338,10 @@
         <button id="adminListBtn" onclick="showPage('adminListPage')" style="display:none"></button>
     </footer>
 
+    <div id="imageModal" class="image-modal" onclick="closeModal()">
+        <span class="modal-close">&times;</span>
+        <img class="modal-content" id="modalImage" onclick="event.stopPropagation()">
+    </div>
     <script>
         /**************************************************************************
          * 정리한 스크립트: 변수, 초기 데이터, 헬퍼 함수, 렌더러, 이벤트 핸들러
@@ -233,35 +356,85 @@
         // --- 상수 및 샘플 데이터 ---
         const categories = ['유아용품','의류','잡화','소형가전','대형가전','가구','기타'];
         const categoryIcons = { '유아용품':'🍼','의류':'👕','잡화':'👜','소형가전':'🔌','대형가전':'🏠','가구':'🛋️','기타':'🎁','전체 보기':'🔄' };
-        const departments = ['1부','2부','3부','4부'];
-        const adminPasswords = { '1부':'dept1','2부':'dept2','3부':'dept3','4부':'dept4' };
+        
+        // 🛠️ 부서명 변경 적용
+        const departments = ['교역자', '자문회', '장년회', '부녀회', '청년회', '학생회'];
+        
+        // 🛠️ 관리자 비밀번호 변경 적용
+        const adminPasswords = { 
+            '교역자':'교역자pw',
+            '자문회':'자문회pw',
+            '장년회':'장년회pw',
+            '부녀회':'부녀회pw',
+            '청년회':'청년회pw',
+            '학생회':'학생회pw'
+        };
         const NO_IMAGE_TEXT = '이미지 없음';
         const NO_IMAGE_PLACEHOLDER = 'https://via.placeholder.com/250/808080/FFFFFF?text=No+Image';
         const THUMBNAIL_PLACEHOLDER = 'https://via.placeholder.com/60/808080/FFFFFF?text=No+Img';
 
-        // 샘플 아이템 (초기 데이터) - 🛠️ 고유번호 필드 제거 적용
+        // 샘플 아이템 (초기 데이터) - 🛠️ 데이터 구조 변경: imageUrl -> imageUrls
         const items = [
             { 
-                id:1, name:'유아 카시트 (ISOFIX)', status:'판매 중', description:'사용 기간 1년 미만, 깨끗합니다.', imageUrl:'https://via.placeholder.com/150/007BFF/FFFFFF?text=CarSeat', 
-                historyStatus:'신청 없음', category:'유아용품', requesterInfo:{name:'김나눔',dept:'1부',team:'운영팀'}, historyBuyerInfo:null, registerDate:'2025-11-10' 
+                id:1, name:'유아 카시트 (ISOFIX)', status:'판매 중', description:'사용 기간 1년 미만, 깨끗합니다.', 
+                imageUrls:['https://via.placeholder.com/200/007BFF/FFFFFF?text=CarSeat_Main','https://via.placeholder.com/300/007BFF/FFFFFF?text=CarSeat_Side','https://via.placeholder.com/200/007BFF/FFFFFF?text=CarSeat_Detail'], // 배열로 변경
+                historyStatus:'신청 없음', category:'유아용품', requesterInfo:{name:'김나눔',dept:'교역자',team:'',id:''}, historyBuyerInfo:null, registerDate:'2025-11-10' 
             },
             { 
-                id:2, name:'여성용 겨울 코트 (90)', status:'거래 완료', description:'울 혼방, 상태 양호', imageUrl:'https://via.placeholder.com/150/8B4513/FFFFFF?text=Coat', 
-                historyStatus:'거래 확정', category:'의류', requesterInfo:{name:'이스타일',dept:'2부',team:'프론트'}, historyBuyerInfo:{name:'테스트구매자2',dept:'2부',team:'마케팅팀'}, registerDate:'2025-11-11' 
+                id:2, name:'여성용 겨울 코트 (90)', status:'거래 완료', description:'울 혼방, 상태 양호', 
+                imageUrls:['https://via.placeholder.com/150/8B4513/FFFFFF?text=Coat'], // 배열로 변경
+                historyStatus:'거래 확정', category:'의류', requesterInfo:{name:'이스타일',dept:'자문회',team:'',id:''}, historyBuyerInfo:{name:'테스트구매자2',dept:'장년회',team:'',id:''}, registerDate:'2025-11-11' 
             }
             // ... 나머지 샘플은 필요 시 추가
         ];
 
         // ========== 헬퍼 ==========
-        function isValidImageUrl(url){
-            if(!url) return false;
-            const t = String(url).trim(); if(t === '') return false;
-            if(t.includes('No+Image') || t.includes('No+Img')) return false;
-            return true;
+        
+        // 🛠️ 변경: 아이템에서 표시할 이미지 URL을 가져오는 헬퍼 함수
+        function getDisplayImage(item, index = 0) {
+            if (item.imageUrls && item.imageUrls.length > index && item.imageUrls[index].trim() !== '') {
+                return item.imageUrls[index];
+            }
+            return null;
         }
+
+        // 🛠️ 변경: 아이템에 유효한 이미지 URL이 있는지 확인 (최소 1장)
+        function isValidImageUrl(item){
+            return getDisplayImage(item) !== null;
+        }
+
         function getTodayDate(){ const n=new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}` }
         function getStatusClass(status){ if(status==='승인 대기') return 'status-waiting'; if(status==='판매 중') return 'status-selling'; if(status==='예약중') return 'status-reserved'; if(status==='거래 완료') return 'status-completed'; if(status==='취소됨') return 'status-cancelled'; return '' }
         function getDisplayStatusText(internalStatus,item){ if(internalStatus==='승인 대기') return '승인 대기'; if(internalStatus==='판매 중') return '신청 가능'; if(internalStatus==='거래 완료') return '나눔 완료'; if(internalStatus==='예약중'){ if(!isAdmin) return '예약중'; if(item && item.historyStatus==='예약 승인') return '예약 확정 (2차 대기)'; if(item && item.historyStatus==='신청 중') return '예약 대기 (1차 대기)'; return '예약중' } return internalStatus }
+
+        // 🛠️ 변경: 파일 용량 제한 (2MB -> 5MB) 및 에러 메시지 수정
+        function convertFileToBase64(file){ 
+            return new Promise((resolve,reject)=>{ 
+                const reader = new FileReader(); 
+                const maxSize = 5*1024*1024; // 5MB
+                if(file.size>maxSize){ 
+                    reject(new Error('파일 크기가 5MB를 초과합니다.')); 
+                    return 
+                } 
+                reader.onload=()=>resolve(reader.result); 
+                reader.onerror=e=>reject(e); 
+                reader.readAsDataURL(file); 
+            }) 
+        }
+        
+        // 🛠️ 추가: 이미지 확대 모달 처리 함수
+        function openModal(imageUrl) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.style.display = 'flex'; // flex로 변경하여 이미지 중앙 정렬
+            modalImg.src = imageUrl;
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+        // ===========================================
+
 
         // ========== 렌더링 ==========
         function renderCategoryGrid(){
@@ -296,45 +469,63 @@
             // 카테고리 필터 적용
             if(currentCategoryFilter) filtered = filtered.filter(i=>i.category===currentCategoryFilter);
             
-            const statusOrder = {'판매 중':1,'예약중':2,'거래 완료':3};
+            const statusOrder = {' 판매 중':1,'예약중':2,'거래 완료':3};
             filtered.sort((a,b)=> (statusOrder[a.status]||99)-(statusOrder[b.status]||99));
 
             if(filtered.length===0){ list.innerHTML='<p style="text-align:center;color:#777;padding:20px;margin:0">조건에 맞는 물품이 없습니다.</p>'; return }
 
             filtered.forEach(item=>{
-                const isNoImage = !isValidImageUrl(item.imageUrl);
-                const displayImageUrl = isNoImage?THUMBNAIL_PLACEHOLDER:item.imageUrl;
+                // 🛠️ 변경: 첫 번째 이미지를 썸네일로 사용
+                const firstImageUrl = getDisplayImage(item, 0);
+                const isNoImage = firstImageUrl === null;
+                const displayImageUrl = isNoImage?THUMBNAIL_PLACEHOLDER:firstImageUrl;
                 const thumbnailHtml = isNoImage?`<div class="item-thumbnail-wrapper">${NO_IMAGE_TEXT}</div>`:`<div class="item-thumbnail-wrapper"><img class="item-thumbnail" src="${displayImageUrl}" alt="${item.name} 이미지"></div>`;
+                
                 const statusText = getDisplayStatusText(item.status,item);
                 const statusClass = getStatusClass(item.status);
                 let actionButton = '';
                 if(!isAdmin && item.status==='판매 중') actionButton=`<button class="primary" onclick="showPage('itemDetailPage',${item.id})">나눔 신청</button>`;
                 
-                // 관리자 전용 간단 정보 (고유번호 제거 반영)
-                let requesterInfoPart = '';
-                if(isAdmin) requesterInfoPart = ` | 등록자: ${item.requesterInfo.name} (${item.requesterInfo.dept})`;
+                // 🎯 부서 정보 노출 및 줄바꿈
+                let requesterInfoDisplay = `${item.requesterInfo.dept||'미상'}`; // 부서명만
+                if(isAdmin) { requesterInfoDisplay += ` (${item.requesterInfo.name})`; } // 관리자: 부서 (이름)
+                const itemInfoContent = `카테고리: ${item.category||'미분류'} | 등록일: ${item.registerDate||'-'}<br>등록 부서: ${requesterInfoDisplay}`;
 
                 const card = document.createElement('div'); card.className='item-card'; card.dataset.id=item.id;
-                card.innerHTML = `${thumbnailHtml}<div class="item-content"><div class="item-header"><span class="item-name" title="${item.name}">${item.name}</span><span class="item-status ${statusClass}">${statusText}</span></div><div class="item-info">카테고리: ${item.category||'미분류'} | 등록일: ${item.registerDate||'-'} ${requesterInfoPart}</div><div class="item-actions">${actionButton}</div></div>`;
+                card.innerHTML = `${thumbnailHtml}<div class="item-content"><div class="item-header"><span class="item-name" title="${item.name}">${item.name}</span><span class="item-status ${statusClass}">${statusText}</span></div><div class="item-info">${itemInfoContent}</div><div class="item-actions">${actionButton}</div></div>`;
                 card.onclick = (e)=>toggleDetails(item.id,e);
                 list.appendChild(card);
 
                 const detailDiv = document.createElement('div'); detailDiv.className='detail-row'; detailDiv.id=`detail-${item.id}`;
                 const formattedDescription = (item.description||'설명이 없습니다.').replace(/\n/g,'<br>');
-                const isDetailNoImage = !isValidImageUrl(item.imageUrl);
-                const detailImageHtml = isDetailNoImage?`<div class="detail-image-box" style="display:flex;align-items:center;justify-content:center;height:150px">${NO_IMAGE_TEXT}</div>`:`<div class="detail-image-box"><img src="${item.imageUrl}" alt="${item.name} 상세 이미지"></div>`;
+                
+                // 🛠️ 변경: 다중 이미지 갤러리 렌더링
+                let detailImageHtml = '';
+                if (item.imageUrls && item.imageUrls.length > 0) {
+                    detailImageHtml = '<div class="detail-image-gallery">';
+                    item.imageUrls.forEach(url => {
+                        if (url && url.trim() !== '') {
+                             // 🛠️ 수정: 이미지를 클릭하면 openModal 함수 호출 추가
+                             detailImageHtml += `<div class="detail-image-box"><img src="${url}" alt="${item.name} 상세 이미지" onclick="openModal('${url}')"></div>`;
+                        }
+                    });
+                    detailImageHtml += '</div>';
+                } else {
+                    detailImageHtml = `<div class="detail-no-image">${NO_IMAGE_TEXT}</div>`;
+                }
+
 
                 let requesterInfoHtml = '';
-                // 🛠️ 고유번호 제거 적용
-                if(isAdmin){ requesterInfoHtml = `<div style="margin-top:12px"><strong>등록자 정보 (관리자 전용):</strong><br>이름: ${item.requesterInfo.name} | 부서: ${item.requesterInfo.dept} | 팀: ${item.requesterInfo.team}</div>` }
+                // '팀' 정보 제거 적용
+                if(isAdmin){ requesterInfoHtml = `<div style="margin-top:12px"><strong>등록자 정보 (관리자 전용):</strong><br>이름: ${item.requesterInfo.name} | 부서: ${item.requesterInfo.dept}</div>` }
                 
                 let deleteButtonHtml = '';
                 const canDelete = isAdmin && adminDept===item.requesterInfo.dept;
                 if(canDelete) deleteButtonHtml = `<button class="cancel-btn" onclick="deleteItem(${item.id})">🗑️ 물품 삭제 (관리자)</button>`;
 
                 let buyerInfoHtml = '';
-                // 🛠️ 고유번호 제거 적용
-                if(isAdmin && item.historyBuyerInfo) buyerInfoHtml = `<div style="margin-top:12px;border-top:1px dashed #ddd;padding-top:8px"><strong>신청자 정보 (관리자 전용):</strong><br>이름: ${item.historyBuyerInfo.name} | 부서: ${item.historyBuyerInfo.dept} | 팀: ${item.historyBuyerInfo.team}</div>`;
+                // '팀' 정보 제거 적용
+                if(isAdmin && item.historyBuyerInfo) buyerInfoHtml = `<div style="margin-top:12px;border-top:1px dashed #ddd;padding-top:8px"><strong>신청자 정보 (관리자 전용):</strong><br>이름: ${item.historyBuyerInfo.name} | 부서: ${item.historyBuyerInfo.dept}</div>`;
 
                 let editButtonHtml = '';
                 const canEdit = isAdmin && adminDept===item.requesterInfo.dept;
@@ -374,9 +565,10 @@
             const q = (document.getElementById('searchInput').value||'').trim().toLowerCase();
             const filtered = items.filter(i=> i.name.toLowerCase().includes(q));
             renderItems(filtered);
-            // 검색 시 카테고리 필터 비활성화/초기화 (선택사항)
+            
+            // 검색 시에는 카테고리 필터 초기화 (검색과 필터 중 하나만 적용)
             currentCategoryFilter = null;
-            renderCategoryGrid();
+            renderCategoryGrid(); // 카테고리 버튼의 활성화 상태 초기화
             document.getElementById('currentCategoryDisplay').style.display = 'none';
         }
 
@@ -395,14 +587,16 @@
             currentCategoryFilter = category;
             renderItems(items);
 
-            // 3. 현재 카테고리 표시 및 버튼 업데이트
+            // 3. 현재 카테고리 표시 및 버튼 업데이트 (요청사항 반영)
             const display = document.getElementById('currentCategoryDisplay');
             const nameSpan = document.getElementById('selectedCategoryName');
             
             if (category) {
-                display.style.display = 'block';
+                // 카테고리가 선택된 경우 표시
+                display.style.display = 'flex'; 
                 nameSpan.textContent = category;
             } else {
+                // 필터가 해제된 경우 숨김
                 display.style.display = 'none';
                 nameSpan.textContent = '';
             }
@@ -416,7 +610,7 @@
         });
 
         function loginAdmin(){
-            const dept = prompt('관리자 로그인 - 부서를 입력하세요 (예: 1부, 2부 등)'); if(!dept) return;
+            const dept = prompt('관리자 로그인 - 부서를 입력하세요 (예: 교역자, 자문회 등)'); if(!dept) return; // 🛠️ 부서명 프롬프트 변경
             if(!adminPasswords[dept]){ alert('알 수 없는 부서입니다.'); return; }
             const pw = prompt(`${dept} 비밀번호를 입력하세요`); if(pw===null) return;
             if(pw === adminPasswords[dept]){ isAdmin=true; adminDept=dept; alert(`관리자(${adminDept})로 로그인되었습니다.`); showPage('main'); }
@@ -427,25 +621,61 @@
         // ========== 관리자 관련 액션 ==========
         function checkAdminAuth(item,actionType){ if(!isAdmin) return false; if(actionType==='register_approve' || actionType==='delete' || actionType==='edit') return adminDept===item.requesterInfo.dept; if(actionType==='trade_approve') return adminDept===item.requesterInfo.dept; if(actionType==='trade_confirm'){ if(!item.historyBuyerInfo) return false; return adminDept===item.historyBuyerInfo.dept } return false }
 
-        function renderAdminList(){ if(!isAdmin) return; const list = document.getElementById('adminListContainer'); list.innerHTML=''; const adminItems = items.filter(i=> i.status==='승인 대기' || i.status==='예약중'); if(adminItems.length===0){ list.innerHTML='<p style="text-align:center;color:#555;padding:20px;margin:0">현재 관리 대기 중인 물품이 없습니다.</p>'; return }
+        function renderAdminList(){ 
+            if(!isAdmin) return; 
+            const list = document.getElementById('adminListContainer'); list.innerHTML=''; 
+            const adminItems = items.filter(i=> i.status==='승인 대기' || i.status==='예약중'); 
+            
+            if(adminItems.length===0){ 
+                list.innerHTML='<p style="text-align:center;color:#555;padding:20px;margin:0">현재 관리 대기 중인 물품이 없습니다.</p>'; 
+                return 
+            }
+            
             adminItems.forEach(item=>{
                 let displayStatus=''; let actions='';
                 const canApproveRegister = checkAdminAuth(item,'register_approve');
                 const canApproveTrade = checkAdminAuth(item,'trade_approve');
                 const canConfirmTrade = checkAdminAuth(item,'trade_confirm');
 
-                if(item.status==='승인 대기'){ displayStatus='등록 승인 대기'; const reqDept=item.requesterInfo.dept; if(canApproveRegister) actions = `<button class="primary" onclick="approveItem(${item.id})">✅ 등록 승인</button> <button class="cancel-btn" onclick="deleteItem(${item.id})">❌ 삭제</button>`; else actions=`<button class="pill disabled">권한 없음 (담당: ${reqDept})</button>` }
+                if(item.status==='승인 대기'){ 
+                    displayStatus='등록 승인 대기'; 
+                    const reqDept=item.requesterInfo.dept; 
+                    if(canApproveRegister) actions = `<button class="primary" onclick="approveItem(${item.id})">✅ 등록 승인</button> <button class="cancel-btn" onclick="deleteItem(${item.id})">❌ 삭제</button>`; 
+                    else actions=`<button class="pill disabled">권한 없음 (담당: ${reqDept})</button>` 
+                }
                 else if(item.status==='예약중'){
-                    if(item.historyStatus==='신청 중'){ displayStatus='1차 대기 (신청 승인)'; const reqDept=item.requesterInfo.dept; if(canApproveTrade) actions=`<button class="primary" onclick="approveTrade(${item.id})">✅ 1차 신청 승인</button> <button class="cancel-btn" onclick="cancelTradeByAdmin(${item.id})">❌ 신청 거절</button>`; else actions=`<button class="pill disabled">권한 없음 (담당: ${reqDept})</button>` }
-                    else if(item.historyStatus==='예약 승인'){ displayStatus='2차 대기 (거래 완료)'; const reqDept = item.historyBuyerInfo?item.historyBuyerInfo.dept:'신청자 없음'; if(canConfirmTrade) actions=`<button class="primary" onclick="confirmTrade(${item.id})">📦 2차 거래 완료</button> <button class="cancel-btn" onclick="cancelTradeByAdmin(${item.id})">🚫 예약 취소</button>`; else actions=`<button class="pill disabled">권한 없음 (담당: ${reqDept})</button>` }
+                    if(item.historyStatus==='신청 중'){ 
+                        displayStatus='1차 대기 (신청 승인)'; 
+                        const reqDept=item.requesterInfo.dept; 
+                        if(canApproveTrade) actions=`<button class="primary" onclick="approveTrade(${item.id})">✅ 1차 신청 승인</button> <button class="cancel-btn" onclick="cancelTradeByAdmin(${item.id})">❌ 신청 거절</button>`; 
+                        else actions=`<button class="pill disabled">권한 없음 (담당: ${reqDept})</button>` 
+                    }
+                    else if(item.historyStatus==='예약 승인'){ 
+                        displayStatus='2차 대기 (거래 완료)'; 
+                        const reqDept = item.historyBuyerInfo?item.historyBuyerInfo.dept:'신청자 없음'; 
+                        if(canConfirmTrade) actions=`<button class="primary" onclick="confirmTrade(${item.id})">📦 2차 거래 완료</button> <button class="cancel-btn" onclick="cancelTradeByAdmin(${item.id})">🚫 예약 취소</button>`; 
+                        else actions=`<button class="pill disabled">권한 없음 (담당: ${reqDept})</button>` 
+                    }
                     else displayStatus='예약중 (상태 오류)';
                 }
 
-                const isNoImage = !isValidImageUrl(item.imageUrl); const displayImageUrl = isNoImage?THUMBNAIL_PLACEHOLDER:item.imageUrl;
+                // 🛠️ 변경: 첫 번째 이미지를 썸네일로 사용
+                const firstImageUrl = getDisplayImage(item, 0);
+                const isNoImage = firstImageUrl === null;
+                const displayImageUrl = isNoImage?THUMBNAIL_PLACEHOLDER:firstImageUrl;
                 const thumb = isNoImage?`<div class="item-thumbnail-wrapper">${NO_IMAGE_TEXT}</div>`:`<div class="item-thumbnail-wrapper"><img class="item-thumbnail" src="${displayImageUrl}" alt="${item.name}"></div>`;
+                
                 const card = document.createElement('div'); card.className='item-card admin-card'; card.style.cursor='default';
-                // 🛠️ 고유번호 제거 적용
-                card.innerHTML = `${thumb}<div class="item-content"><div class="item-header"><span class="item-name">${item.name}</span><span class="item-status ${getStatusClass(item.status)}">${displayStatus}</span></div><div class="item-info">카테고리: ${item.category||'미분류'} | 등록일: ${item.registerDate||'-'}</div><div style="margin-top:6px;font-size:0.9em"><strong>등록 부서:</strong> ${item.requesterInfo.dept} | 등록자: ${item.requesterInfo.name}</div><div style="margin-top:8px" class="item-actions">${actions}</div></div>`;
+
+                // 신청자 정보 추가 로직 (팀 정보 제거)
+                let applicantInfoHtml = '';
+                if (item.status === '예약중' && item.historyBuyerInfo) {
+                    const buyer = item.historyBuyerInfo;
+                    applicantInfoHtml = `<div style="margin-top:4px;font-size:0.9em;color:var(--accent)"><strong>신청 부서:</strong> ${buyer.dept} | 신청자: ${buyer.name}</div>`;
+                }
+
+                // 등록자 정보에서 '팀' 제거
+                card.innerHTML = `${thumb}<div class="item-content"><div class="item-header"><span class="item-name">${item.name}</span><span class="item-status ${getStatusClass(item.status)}">${displayStatus}</span></div><div class="item-info">카테고리: ${item.category||'미분류'} | 등록일: ${item.registerDate||'-'}</div><div style="margin-top:6px;font-size:0.9em"><strong>등록 부서:</strong> ${item.requesterInfo.dept} | 등록자: ${item.requesterInfo.name}</div>${applicantInfoHtml}<div style="margin-top:8px" class="item-actions">${actions}</div></div>`;
                 list.appendChild(card);
             })
         }
@@ -474,8 +704,9 @@
             const newRName = prompt(`[${item.name}] 등록자 이름 (현재: ${item.requesterInfo.name}):`, item.requesterInfo.name);
             if (newRName === null) return;
 
-            // 부서 변경 로직 (기존 코드 그대로 유지)
+            // 부서 변경 로직 
             let newRDept = item.requesterInfo.dept;
+            // 🛠️ 부서명 목록 변경 적용
             const deptPrompt = `[${item.name}] 등록자 부서 (현재: ${item.requesterInfo.dept})\n\n선택 가능한 부서: ${departments.join(', ')}\n새 부서를 입력하세요:`;
             let inputDept = prompt(deptPrompt, item.requesterInfo.dept);
 
@@ -485,25 +716,28 @@
             } else {
                  alert('유효하지 않은 부서입니다. 기존 부서가 유지됩니다.');
             }
+            
+            // 🛠️ 변경: 이미지 배열을 다루기 복잡하므로, 수정 시에는 '대표 이미지 URL'을 새로 입력 받거나 기존 것을 유지하도록 단순화합니다.
+            const currentMainImageUrl = getDisplayImage(item, 0) || '없음';
+            const newMainImageUrl = prompt(`[${item.name}]의 새 대표 이미지 URL을 입력하세요 (현재: ${currentMainImageUrl}).\n변경하지 않으려면 '유지'를 입력하세요:`, currentMainImageUrl);
+            
+            if (newMainImageUrl === null) return;
 
-            const newRTeam = prompt(`[${item.name}] 등록자 팀 (현재: ${item.requesterInfo.team}):`, item.requesterInfo.team);
-            if (newRTeam === null) return;
-            // 🛠️ 고유번호 프롬프트 및 관련 로직 제거됨
-            
-            const newImageUrl = prompt(`[${item.name}]의 새 이미지 URL을 입력하세요 (변경하지 않으려면 공백):`, item.imageUrl);
-            
+            // 기본 정보 업데이트
             item.name = newName.trim();
             item.description = newDescription.trim();
             item.category = newCategory.trim();
             item.requesterInfo.name = newRName.trim();
             item.requesterInfo.dept = newRDept.trim(); 
-            item.requesterInfo.team = newRTeam.trim();
-            // 🛠️ 고유번호 할당 제거됨
+            item.requesterInfo.team = ''; // 팀은 빈 값으로 저장
             
-            // 이미지 URL 처리: 사용자가 공백을 입력하면 기존 URL 유지, 명시적 URL을 입력하면 업데이트.
-            if (newImageUrl !== null) {
-                 item.imageUrl = newImageUrl.trim();
+            // 이미지 업데이트: '유지'가 아니면서 공백이 아닐 경우 첫 번째 URL만 업데이트
+            if (newMainImageUrl !== '유지' && newMainImageUrl.trim() !== currentMainImageUrl && newMainImageUrl.trim() !== '없음') {
+                 // 기존 배열을 유지하면서 첫 번째 요소만 업데이트
+                 item.imageUrls = [newMainImageUrl.trim(), ...item.imageUrls.slice(1)].filter(url => url.trim() !== '');
+                 if(item.imageUrls.length === 0) item.imageUrls = []; // 모두 빈 문자열일 경우 빈 배열로
             }
+
 
             alert(`물품 [${item.name}]의 정보가 수정되었습니다.`);
             showPage('main');
@@ -520,65 +754,106 @@
         function confirmTrade(itemId){ const it = items.find(i=>i.id===itemId); if(!it) return; if(!checkAdminAuth(it,'trade_confirm')){ alert('권한 없음'); return } it.status='거래 완료'; it.historyStatus='거래 확정'; alert(`물품 [${it.name}] 거래가 완료 처리되었습니다.`); renderAdminList(); showPage('main'); }
 
         // ========== 신청 처리 ==========
-        function renderItemDetailPage(itemId){ const item = items.find(i=>i.id===itemId); const detailPage = document.getElementById('itemDetailPage'); currentItemId=itemId; if(!item || item.status!=='판매 중'){ detailPage.innerHTML=`<h3>🚫 나눔 신청 불가</h3><p>이 물품은 현재 신청 가능한 상태가 아닙니다.</p><button class="cancel-btn" onclick="showPage('main')">🔙 뒤로가기</button>`; return }
-            const isNoImage = !isValidImageUrl(item.imageUrl); const displayImageUrl = isNoImage?NO_IMAGE_PLACEHOLDER:item.imageUrl; const imageHtml = isNoImage?`<div class="image-container" style="height:200px;background:#e0e0e0;display:flex;align-items:center;justify-content:center;font-weight:700">${NO_IMAGE_TEXT}</div>`:`<div class="image-container"><img src="${displayImageUrl}" alt="${item.name}"></div>`;
+        function renderItemDetailPage(itemId){ 
+            const item = items.find(i=>i.id===itemId); 
+            const detailPage = document.getElementById('itemDetailPage'); 
+            currentItemId=itemId; 
+            if(!item || item.status!=='판매 중'){ detailPage.innerHTML=`<h3>🚫 나눔 신청 불가</h3><p>이 물품은 현재 신청 가능한 상태가 아닙니다.</p><button class="cancel-btn" onclick="showPage('main')">🔙 뒤로가기</button>`; return }
+            
+            // 🛠️ 변경: 첫 번째 이미지를 대표 이미지로 사용
+            const firstImageUrl = getDisplayImage(item, 0);
+            const isNoImage = firstImageUrl === null; 
+            const displayImageUrl = isNoImage?NO_IMAGE_PLACEHOLDER:firstImageUrl; 
+            // 신청 페이지에서는 이미지를 클릭해도 확대 기능을 제공하지 않습니다.
+            const imageHtml = isNoImage?`<div class="image-container" style="height:150px;background:#e0e0e0;display:flex;align-items:center;justify-content:center;font-weight:700">${NO_IMAGE_TEXT}</div>`:`<div class="image-container"><img src="${displayImageUrl}" alt="${item.name}"></div>`;
+            
             renderDeptSelect('applyDept');
-            detailPage.innerHTML = `<h3>⭐ 나눔 신청: ${item.name}</h3><div class="item-detail-info" style="display:flex;gap:16px;margin-top:12px">${imageHtml}<div class="text-content"><h2 style="margin:0">${item.name}</h2><p style="white-space:pre-wrap">${item.description}</p><strong>카테고리: ${item.category||'미분류'}</strong><strong style="display:block;margin-top:6px">등록일: ${item.registerDate||'-'}</strong></div></div><div style="margin-top:14px;padding:12px;border:2px solid var(--success);border-radius:10px;background:#f0fff0"><h4 style="margin:0 0 8px">📝 신청자 정보 입력</h4><p style="margin:0 0 8px">아래 정보 입력 후 나눔신청을 눌러주세요. <br>담당자 승인 후 진행됩니다.</p><div class="info-group" style="margin-top:8px"><input type="text" id="applyName" placeholder="이름 (필수)"><select id="applyDept"></select><input type="text" id="applyTeam" placeholder="팀 (필수)"></div><div style="margin-top:12px"><button class="primary" onclick="submitTradeApplication()">나눔 신청</button> <button class="cancel-btn" onclick="showPage('main')">🔙 뒤로가기</button></div></div>`; renderDeptSelect('applyDept'); }
-            // 🛠️ 신청 폼에서도 고유번호 필드 제거됨
+            // 나눔 신청 폼에서 '팀' 필드 제거 및 이름 placeholder 변경
+            detailPage.innerHTML = `<h3>⭐ 나눔 신청: ${item.name}</h3><div class="item-detail-info" style="display:flex;gap:16px;margin-top:12px">${imageHtml}<div class="text-content"><h2 style="margin:0">${item.name}</h2><p style="white-space:pre-wrap">${item.description}</p><strong>카테고리: ${item.category||'미분류'}</strong><strong style="display:block;margin-top:6px">등록일: ${item.registerDate||'-'}</strong></div></div><div style="margin-top:14px;padding:12px;border:2px solid var(--success);border-radius:10px;background:#f0fff0"><h4 style="margin:0 0 8px">📝 신청자 정보 입력</h4><p style="margin:0 0 8px">아래 정보 입력 후 나눔신청을 눌러주세요. <br>담당자 승인 후 연락 예정입니다.</p><div class="info-group" style="margin-top:8px"><input type="text" id="applyName" placeholder="이름+알파벳 (예: 김나눔a)"><select id="applyDept"></select></div><div style="margin-top:12px"><button class="primary" onclick="submitTradeApplication()">나눔 신청</button> <button class="cancel-btn" onclick="showPage('main')">🔙 뒤로가기</button></div></div>`; renderDeptSelect('applyDept'); 
+        }
 
         function submitTradeApplication(){ 
             const item = items.find(i=>i.id===currentItemId); 
             if(!item || item.status!=='판매 중'){ alert('신청할 수 없는 물품입니다.'); showPage('main'); return }
             
-            // 🛠️ 고유번호 필드 제거 반영
+            // '팀' 필드 제거 반영
             const applyInfo = { 
                 name: (document.getElementById('applyName').value||'').trim(), 
                 dept: document.getElementById('applyDept').value, 
-                team: (document.getElementById('applyTeam').value||'').trim() 
+                team: '', // '팀'은 빈 값으로 저장
+                id: '' 
             };
             
-            // 🛠️ 고유번호 유효성 검사 제거 반영
-            if(!applyInfo.name||!applyInfo.dept||!applyInfo.team){ alert('이름, 부서, 팀을 모두 입력해주세요.'); return }
-
-            // 🛠️ 고유번호 기반 중복 체크 로직 제거됨
+            // '팀' 유효성 검사 제거 반영
+            if(!applyInfo.name||!applyInfo.dept){ alert('이름과 부서를 모두 입력해주세요.'); return }
 
             item.status='예약중'; item.historyStatus='신청 중'; item.historyBuyerInfo=applyInfo; alert(`물품 [${item.name}] 나눔 신청 완료. 담당자 승인 후 연락 예정입니다..`); showPage('main'); 
         }
 
         // ========== 파일 업로드 & 등록 요청 처리 ==========
-        function convertFileToBase64(file){ return new Promise((resolve,reject)=>{ const reader = new FileReader(); const maxSize = 2*1024*1024; if(file.size>maxSize){ reject(new Error('File size exceeds 2MB')); return } reader.onload=()=>resolve(reader.result); reader.onerror=e=>reject(e); reader.readAsDataURL(file); }) }
+        
+        // 🛠️ 변경: 멀티 파일 처리 및 유효성 검사 로직 업데이트
         async function addItemAsync(){
-            // 🛠️ rId 변수 및 DOM 접근 제거 반영
             const name = (document.getElementById('itemName').value||'').trim(); 
             const rName=(document.getElementById('requesterName').value||'').trim(); 
             const rDept=document.getElementById('requesterDept').value; 
-            const rTeam=(document.getElementById('requesterTeam').value||'').trim(); 
-            const rId = ''; // ⬅️ 고유번호 입력란 삭제로 빈 값으로 처리 (저장을 위해 변수는 유지)
+            const rId = ''; 
             const category=document.getElementById('itemCategory').value; 
             const description=(document.getElementById('itemDescription').value||'').trim(); 
-            const file = document.getElementById('itemImageFile').files[0];
             
-            // 🛠️ rId 유효성 검사 제거 반영
-            if(!name||!description||!category||!rName||!rDept||!rTeam){ alert('물품 이름, 등록자 정보(이름, 부서, 팀), 카테고리, 상세 설명을 모두 입력해주세요.'); return }
+            // 🛠️ 변경: 다중 파일 입력 필드 ID 사용
+            const files = document.getElementById('itemImageFiles').files;
             
-            let imageUrl = '';
-            if(file){ try{ imageUrl = await convertFileToBase64(file); }catch(err){ console.error('파일 변환 오류',err); alert('이미지 파일 변환에 실패했습니다. 파일은 2MB 이하로 시도해 주세요.'); return } }
+            if(!name||!description||!category||!rName||!rDept){ 
+                alert('물품 이름, 등록자 정보(이름, 부서), 카테고리, 상세 설명을 모두 입력해주세요.'); 
+                return 
+            }
+
+            // 파일 개수 유효성 검사 (1~3장)
+            if (files.length === 0) {
+                alert('물품 사진을 최소 1장 이상 등록해주세요.');
+                return;
+            }
+            if (files.length > 3) {
+                alert('물품 사진은 최대 3장까지만 등록 가능합니다. 3장 이하로 다시 선택해주세요.');
+                return;
+            }
+            
+            let imageUrls = []; // 배열로 Base64 문자열 저장
+            try{ 
+                // 모든 파일을 Base64로 변환 (5MB 제한 적용됨)
+                const conversionPromises = Array.from(files).map(file => convertFileToBase64(file));
+                imageUrls = await Promise.all(conversionPromises);
+                imageUrls = imageUrls.filter(url => url && url.trim() !== ''); // 빈 문자열 제거
+            }catch(err){ 
+                console.error('파일 변환 오류',err); 
+                // 5MB 제한 반영된 에러 메시지
+                alert(`이미지 파일 변환에 실패했습니다. 파일당 최대 5MB 이하로 시도해 주세요. (${err.message})`); 
+                return 
+            }
             
             const newId = items.reduce((m,i)=>Math.max(m,i.id),0)+1;
             
-            // 🛠️ requesterInfo에서 id는 빈 값으로 저장
-            const newItem = { id:newId, name, status:'승인 대기', description, imageUrl: imageUrl||'', historyStatus:'신청 없음', category, requesterInfo:{name:rName,dept:rDept,team:rTeam,id:rId}, historyBuyerInfo:null, registerDate:getTodayDate() };
+            // 🛠️ 변경: imageUrl -> imageUrls 배열 저장
+            const newItem = { 
+                id:newId, name, status:'승인 대기', description, 
+                imageUrls: imageUrls, 
+                historyStatus:'신청 없음', category, 
+                requesterInfo:{name:rName,dept:rDept,team:'',id:rId}, 
+                historyBuyerInfo:null, registerDate:getTodayDate() 
+            };
             
-            items.unshift(newItem); alert(`물품 등록 요청이 접수되었습니다. 관리자의 승인 대기 상태입니다. (id:${newId})`);
+            items.unshift(newItem); 
+            alert(`물품 등록 요청이 접수되었습니다. 관리자의 승인 대기 상태입니다. (id:${newId})`);
             
-            // 폼 초기화 - 🛠️ requesterId 초기화 제거 반영
+            // 폼 초기화
             document.getElementById('itemName').value=''; 
             document.getElementById('requesterName').value=''; 
             document.getElementById('requesterDept').value=''; 
-            document.getElementById('requesterTeam').value=''; 
             document.getElementById('itemCategory').value=''; 
             document.getElementById('itemDescription').value=''; 
-            document.getElementById('itemImageFile').value='';
+            // 🛠️ 변경: 파일 입력 필드 ID
+            document.getElementById('itemImageFiles').value='';
             
             showPage('main');
         }
