@@ -425,6 +425,8 @@
             white-space: pre-wrap;
             font-size: 0.95rem;
             line-height: 1.6;
+            overflow-wrap: break-word;
+            word-break: break-word;
         }
 
         /* Category Grid */
@@ -600,7 +602,8 @@
             <div class="search-container">
                 <div class="search-box">
                     <span class="search-icon">🔍</span>
-                    <input id="searchInput" type="text" placeholder="어떤 물품을 찾고 계신가요?" autocomplete="off" />
+                    <input id="searchInput" type="text" placeholder="어떤 물품을 찾고 계신가요?" autocomplete="off"
+                        oninput="searchItems()" />
                     <button id="clearSearchBtn" onclick="clearSearchInput()">✕</button>
                 </div>
             </div>
@@ -678,7 +681,7 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">상세 설명 및 나눔 조건 <span style="color:var(--accent-danger)">*</span></label>
+                <label class="form-label">상세 설명<span style="color:var(--accent-danger)">*</span></label>
                 <textarea id="itemDescription" class="form-textarea" rows="6"
                     placeholder="물품의 상태, 사용 기간, 특이사항 등을 자세히 적어주세요."></textarea>
             </div>
