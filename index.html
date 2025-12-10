@@ -1,878 +1,1260 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나눔의 숲</title> 
-    
+    <title>나눔의 숲 | 따뜻한 마음을 나누세요</title>
+    <!-- Google Fonts: Pretendard (via JSDelivr for speed/reliability in KR) -->
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
     <style>
-        /* 기본 스타일 */
-        :root{
-            --bg: #f8f9fa;
-            --card: #ffffff;
-            --accent: #3498db;
-            --muted: #7f8c8d;
-            --success: #27ae60;
-            --warning: #f39c12;
-            --danger: #e74c3c;
-            --soft-green: #aed581;
+        /* ========================
+           Global Styles & Variables
+           ======================== */
+        :root {
+            /* Palette: Modern Forest Theme */
+            --primary: #2da44e;
+            /* GitHub Green-ish, friendly nature color */
+            --primary-dark: #2c974b;
+            --primary-light: #dcfce7;
+            --secondary: #3b82f6;
+            /* Trusty Blue for interactions */
+
+            --bg-color: #f6f8fa;
+            --card-bg: #ffffff;
+            --text-main: #24292f;
+            --text-sub: #57606a;
+            --border-color: #d0d7de;
+
+            /* Accents */
+            --accent-danger: #cf222e;
+            --accent-warning: #9a6700;
+            --accent-success: #1a7f37;
+            --accent-purple: #8250df;
+
+            /* Shadows & Radius */
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+            --radius-md: 8px;
+            --radius-lg: 16px;
+            --radius-full: 9999px;
+
+            /* Transitions */
+            --ease: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Verdana, sans-serif;
-            background-color: var(--bg); 
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             margin: 0;
-            padding: 20px; 
-            line-height: 1.6;
-            padding-bottom: 20px; 
+            padding: 0;
+            line-height: 1.5;
             -webkit-font-smoothing: antialiased;
         }
 
-        .container {
-            max-width: 1000px; 
-            margin: auto;
-            background: var(--card); 
-            padding: 25px;
-            border-radius: 12px; 
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); 
-            position: relative;
-            min-height: auto; 
+        * {
+            box-sizing: border-box;
+        }
+
+        /* ========================
+           Layout & Containers
+           ======================== */
+        .wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-bottom: 80px;
+            /* footer space */
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
 
         h1 {
-            color: #34495e; 
-            padding-bottom: 15px; 
-            margin-bottom: 20px; 
-            font-size: 1.8em; 
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        /* ========== 검색, 버튼 ========== */
-        .search-box{position:relative;margin-bottom:16px}
-        #searchInput{
-            width:100%;
-            padding:10px 36px;
-            border:1px solid #ccc;
-            border-radius:6px;
-            font-size:0.95em;
-            box-sizing:border-box; /* 검색창 오버플로우 방지 */
-        }
-        .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none}
-        #clearSearchBtn{position:absolute;right:10px;top:50%;transform:translateY(-50%);border:none;background:none;font-weight:bold;display:none;cursor:pointer}
-
-        #buttonContainer{display:flex;justify-content:flex-end;gap:10px;margin-bottom:12px}
-        button{border:none;border-radius:6px;padding:8px 12px;cursor:pointer;background:#e9ecef;color:#34495e;transition:background-color 0.1s}
-        .primary{background:var(--success);color:#fff;font-weight:600}
-        .accent{background:var(--warning);color:#fff;font-weight:600}
-        .pill{background:#f1f3f5}
-        .cancel-btn{background:#bdc3c7; color:#fff}
-        
-        /* 카테고리 버튼 스타일 */
-        .category-item{background:#ecf0f1;border-radius:10px;height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;cursor:pointer; transition:background-color 0.1s}
-        .category-item.active {
-            background-color: var(--accent);
-            color: white;
-            font-weight: bold;
-            border-color: var(--accent);
-        }
-
-        /* 현재 카테고리 표시 스타일 */
-        #currentCategoryDisplay {
-            display: none; /* JS로 제어 */
-            margin-bottom: 12px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 15px;
-            background: #eef7ff; /* 연한 파랑 배경 */
-            border: 1px solid var(--accent);
-            border-radius: 6px;
-        }
-        #selectedCategoryName {
-            color: var(--accent);
-            font-size: 1.1em;
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin: 0;
             font-weight: 800;
+            cursor: pointer;
+            letter-spacing: -0.03em;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.2s var(--ease);
         }
 
-        /* ========== 리스트 카드 ========== */
-        .list-container{display:flex;flex-direction:column;gap:14px}
-        .item-card{display:flex;align-items:flex-start;padding:12px;border-radius:8px;border:1px solid #ecf0f1;background:#fff;box-shadow:0 4px 8px rgba(0,0,0,0.03);cursor:pointer}
-        .item-thumbnail-wrapper{width:60px;height:60px;min-width:60px;border-radius:8px;overflow:hidden;margin-right:14px;border:1px solid #bdc3c7;display:flex;align-items:center;justify-content:center;background:#ecf0f1;font-size:0.75em;color:var(--muted)}
-        .item-thumbnail{width:100%;height:100%;object-fit:cover}
-        .item-content{flex:1;min-width:0}
-        .item-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
-        .item-name{font-weight:700;color:#34495e;font-size:1.05em;max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-        .item-info{font-size:0.85em;color:var(--muted)}
-        .item-actions{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
+        h1:active {
+            transform: scale(0.95);
+        }
 
-        /* 상태 색상 */
-        .status-waiting{color:var(--warning);font-weight:700}
-        .status-selling{color:var(--success);font-weight:700}
-        .status-reserved{color:#8e44ad;font-weight:700}
-        .status-completed{color:#95a5a6}
-        .status-cancelled{color:var(--danger);font-weight:700}
+        .subtitle {
+            color: var(--text-sub);
+            margin-top: 10px;
+            font-size: 1.1rem;
+        }
 
-        .detail-row{display:none;width:100%;background:#f6f8fa;padding:14px;border-radius:8px;border:1px dashed #ddd;margin-top:-6px;box-sizing:border-box}
-        
-        /* 다중 이미지 컨테이너 스타일 */
-        .detail-image-gallery{
-            display:flex;
-            overflow-x:auto; /* 가로 스크롤 가능하게 */
-            gap:8px;
-            padding:10px 0;
-            border-bottom:1px solid #eee;
-            margin-bottom:10px;
-        }
-        .detail-image-box{
-            max-width:100%;
-            height:auto;
-            min-width:120px; /* 각 이미지 최소 너비 */
-            max-height:150px;
-            border-radius:8px;
-            border:1px solid #ccc;
-            padding:6px;
-            background:#ecf0f1;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            overflow:hidden;
-            cursor: pointer; /* 클릭 가능 표시 */
-        }
-        .detail-image-box img{
-            max-width:100%;
-            max-height:100%;
-            height:auto;
-            width:auto;
-            object-fit:contain;
-            display:block;
-            border-radius:4px;
-        }
-        /* No Image Placeholder */
-        .detail-no-image{
-             height:150px;
-             width:100%;
-             background:#e0e0e0;
-             display:flex;
-             align-items:center;
-             justify-content:center;
-             font-weight:700;
-             border-radius:8px;
-             margin-bottom:10px;
-        }
-        
-        /* item-detail-info 내 이미지 크기 제한 (신청 페이지) */
-        .item-detail-info .image-container {
-            flex-shrink: 0;
-            width: 150px;
-            height: 150px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            overflow: hidden;
-            display: flex;
+        /* ========================
+           Components
+           ======================== */
+
+        /* Buttons */
+        button {
+            display: inline-flex;
             align-items: center;
             justify-content: center;
+            gap: 6px;
+            padding: 10px 18px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s var(--ease);
+            font-family: inherit;
         }
-        .item-detail-info .image-container img {
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 5px rgba(45, 164, 78, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: white;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background: #f3f4f6;
+            border-color: #b1b9c0;
+        }
+
+        .btn-danger {
+            background: #fff0f0;
+            color: var(--accent-danger);
+            border: 1px solid #ffcece;
+        }
+
+        .btn-danger:hover {
+            background: #ffebeb;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-sub);
+        }
+
+        .btn-ghost:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-icon {
+            padding: 8px;
+            border-radius: 50%;
+        }
+
+        /* Search Bar */
+        .search-container {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto 30px auto;
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: var(--radius-full);
+            box-shadow: var(--shadow-md);
+            border: 2px solid transparent;
+            transition: 0.2s;
+            overflow: hidden;
+        }
+
+        .search-box:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(45, 164, 78, 0.1);
+        }
+
+        .search-icon {
+            padding-left: 20px;
+            color: var(--text-sub);
+            font-size: 1.2rem;
+        }
+
+        #searchInput {
+            border: none;
+            background: transparent;
+            flex: 1;
+            padding: 16px;
+            font-size: 1.1rem;
+            outline: none;
+            color: var(--text-main);
+        }
+
+        #clearSearchBtn {
+            margin-right: 10px;
+            background: #e5e7eb;
+            color: #666;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            padding: 0;
+            font-size: 0.8rem;
+            display: none;
+        }
+
+        /* Top Action Bar */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .category-status {
+            display: none;
+            /* JS controlled */
+            align-items: center;
+            gap: 10px;
+            background: var(--primary-light);
+            padding: 8px 16px;
+            border-radius: var(--radius-full);
+            color: var(--accent-success);
+            font-weight: 700;
+            border: 1px solid rgba(45, 164, 78, 0.2);
+        }
+
+        /* Grid System */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        /* Item Card */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: all 0.25s var(--ease);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .card-img-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 75%;
+            /* 4:3 Aspect Ratio */
+            background-color: #f1f3f5;
+            overflow: hidden;
+        }
+
+        .card-img {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            object-fit: contain;
-            border-radius: 0;
+            object-fit: cover;
+            transition: transform 0.4s;
         }
 
-        /* admin footer */
-        footer{position:fixed;left:0;right:0;bottom:0;display:none;background:var(--soft-green);padding:14px;text-align:center;box-shadow:0 -4px 8px rgba(0,0,0,0.12);z-index:100}
-        footer button{margin:0 6px}
+        .card:hover .card-img {
+            transform: scale(1.05);
+        }
 
-        /* form */
-        .form-content input[type=text], .form-content select, .form-content textarea{width:100%;padding:10px;border-radius:6px;border:1px solid #ccc;box-sizing:border-box}
-        /* info-group: 3칸 -> 2칸으로 변경 (이름, 부서만 남음) */
-        .info-group{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:12px;border-radius:8px;background:#eef7ff;border:1px dashed var(--accent)}
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(4px);
+        }
 
-        /* category grid */
-        .category-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:12px}
+        .card-body {
+            padding: 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
 
-        /* ========== 이미지 확대 모달 스타일 ========== */
-        .image-modal {
-            display: none; /* 기본 숨김 */
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+            color: var(--text-main);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .card-meta {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            margin-bottom: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .meta-tag {
+            background: #f3f4f6;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .card-footer {
+            margin-top: auto;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 12px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        /* Status Colors */
+        .st-waiting {
+            color: var(--accent-warning);
+            border: 1px solid var(--accent-warning);
+        }
+
+        .st-selling {
+            color: white;
+            background: var(--accent-success);
+            border: none;
+        }
+
+        .st-reserved {
+            color: white;
+            background: var(--accent-purple);
+            border: none;
+        }
+
+        .st-completed {
+            color: #fff;
+            background: var(--text-sub);
+            border: none;
+        }
+
+        .st-cancelled {
+            color: white;
+            background: var(--accent-danger);
+            border: none;
+        }
+
+        /* Detail View (Inline Expansion) */
+        .detail-view {
+            display: none;
+            background: #fafbfc;
+            padding: 20px;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .detail-gallery {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            scrollbar-width: thin;
+        }
+
+        .detail-thumb {
+            width: 100px;
+            height: 100px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            object-fit: cover;
+            cursor: zoom-in;
+            flex-shrink: 0;
+            background: white;
+            transition: transform 0.2s;
+        }
+
+        .detail-thumb:hover {
+            transform: scale(1.05);
+            border-color: var(--primary);
+        }
+
+        .detail-desc {
+            background: white;
+            padding: 15px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            white-space: pre-wrap;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Category Grid */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+            padding: 10px;
+        }
+
+        .cat-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 20px 10px;
+            text-align: center;
+            cursor: pointer;
+            border: 1px solid transparent;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s;
+        }
+
+        .cat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary);
+        }
+
+        .cat-card.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .cat-icon {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        /* Forms */
+        .form-page {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+            background: #fff;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(45, 164, 78, 0.1);
+        }
+
+        /* Modal for Image */
+        .modal {
+            display: none;
             position: fixed;
-            z-index: 200; /* 최상위 */
+            z-index: 1000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.9); /* 어두운 배경 */
-            align-items: center;
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
             justify-content: center;
-            flex-direction: column;
+            align-items: center;
+            cursor: zoom-out;
         }
 
         .modal-content {
-            margin: auto;
-            display: block;
-            width: 90%;
-            max-width: 700px;
-            max-height: 90vh; /* 화면 높이에 맞춤 */
-            object-fit: contain;
+            max-width: 90%;
+            max-height: 90vh;
+            border-radius: var(--radius-md);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            cursor: auto;
         }
 
-        .modal-close {
-            position: absolute;
-            top: 15px;
-            right: 35px;
-            color: #f1f1f1;
-            font-size: 40px;
-            font-weight: bold;
-            transition: 0.3s;
-            cursor: pointer;
+        /* Admin Footer */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(36, 41, 47, 0.95);
+            padding: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            color: white;
+            display: none;
+            z-index: 900;
+            justify-content: center;
+            gap: 15px;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        .modal-close:hover,
-        .modal-close:focus {
-            color: #bbb;
-            text-decoration: none;
-            cursor: pointer;
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-sub);
         }
-        /* ================================================= */
 
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
 
-        /* responsive */
-        @media(max-width:600px){
-            body{padding:10px}
-            .container{padding:14px}
-            .category-grid{grid-template-columns:repeat(2,1fr)}
-            .info-group{grid-template-columns:1fr}
-            footer{flex-wrap:wrap}
-            .item-detail-info {
-                flex-direction: column;
-                align-items: center;
+        @media (max-width: 600px) {
+            .wrapper {
+                padding: 15px;
             }
-            .item-detail-info .image-container {
-                width: 100%;
-                height: 200px; /* 모바일에서 좀 더 크게 */
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .form-page {
+                padding: 20px;
+            }
+
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .grid-container {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1 id="headerTitle">🌳 나눔의 숲</h1>
 
+<body>
+
+    <div class="wrapper">
+        <!-- Header Section -->
+        <header>
+            <h1 id="headerTitle" title="관리자 로그인: 3회 클릭">🌳 나눔의 숲</h1>
+            <div class="subtitle">우리 공동체를 위한 따뜻한 물품 공유 플랫폼</div>
+        </header>
+
+        <!-- Main View -->
         <div id="mainContent">
             <div class="search-container">
                 <div class="search-box">
-                    <input id="searchInput" type="text" placeholder="물품 이름으로 검색..." />
                     <span class="search-icon">🔍</span>
-                    <button id="clearSearchBtn" onclick="clearSearchInput()">X</button>
+                    <input id="searchInput" type="text" placeholder="어떤 물품을 찾고 계신가요?" autocomplete="off" />
+                    <button id="clearSearchBtn" onclick="clearSearchInput()">✕</button>
                 </div>
             </div>
 
-            <div id="buttonContainer">
-                <div class="action-group">
-                    <button class="accent" id="categoryButton" onclick="showPage('categoryPage')">🏷️ 카테고리</button>
+            <div class="action-bar">
+                <div id="categoryStatus" class="category-status">
+                    <span id="selectedCategoryName">카테고리</span>
+                    <button class="btn-icon btn-ghost" onclick="filterByCategory(null)"
+                        style="padding:4px; margin-left:5px;">✕</button>
                 </div>
-                <div id="registerButtonContainer" class="action-group">
-                    <button class="primary" onclick="showPage('registrationFormPage')">📦 내 물건 등록하기</button>
+                <div style="margin-left:auto; display:flex; gap:10px; width:100%; justify-content:flex-end;">
+                    <button class="btn-secondary" onclick="showPage('categoryPage')">🏷️ 카테고리</button>
+                    <button class="btn-primary" onclick="showPage('registrationFormPage')">📦 내 물건 나눔하기</button>
                 </div>
             </div>
 
-            <div id="currentCategoryDisplay">
-                <div>
-                    현재 카테고리: <span id="selectedCategoryName"></span>
-                </div>
-                <button class="pill" onclick="filterByCategory(null)" style="padding:6px 10px;font-weight:600">🔄 초기화</button>
+            <div id="item-list-container" class="grid-container">
+                <!-- Items will be injected here -->
             </div>
-            <div id="item-list-container" class="list-container"></div>
         </div>
 
+        <!-- Pages -->
+
+        <!-- Category Selection Page -->
         <div id="categoryPage" style="display:none">
-            <h2>🏷️ 카테고리 선택</h2>
-            <p>원하는 카테고리를 선택하세요.</p>
-            <button class="cancel-btn" onclick="showPage('main')" style="margin-bottom:12px">🔙 뒤로가기</button>
-            <div class="category-grid"></div>
+            <div class="action-bar">
+                <h2>🏷️ 카테고리 선택</h2>
+                <button class="btn-secondary" onclick="showPage('main')">⬅ 목차로 돌아가기</button>
+            </div>
+            <div class="category-grid" id="categoryGridContent"></div>
         </div>
 
-        <div id="itemDetailPage" style="display:none"></div>
+        <!-- Registration Page -->
+        <div id="registrationFormPage" style="display:none" class="form-page">
+            <h2 style="margin-top:0">📦 내 물건 나눔하기</h2>
+            <p class="subtitle" style="margin-bottom:30px">소중한 물건을 이웃에게 나누어주세요.</p>
 
-        <div id="adminListPage" style="display:none">
-            <h2>🚨 관리 목록</h2>
-            <p>신규 등록 승인, 신청 승인, 거래 확정 등을 처리합니다.</p>
-            <p style="color:var(--danger);font-weight:700">✅ 현재 관리자 부서: <span id="currentAdminDept">로그아웃 상태</span></p>
-            <button class="cancel-btn" onclick="showPage('main')" style="margin-bottom:12px">🔙 뒤로가기</button>
-            <div id="adminListContainer" class="list-container"></div>
-        </div>
+            <div class="form-group">
+                <label class="form-label">물품 이름 <span style="color:var(--accent-danger)">*</span></label>
+                <input type="text" id="itemName" class="form-input" placeholder="예: 유아용 카시트, 겨울 코트 등" />
+            </div>
 
-        <div id="registrationFormPage" style="display:none">
-            <h3>내 물건 등록하기</h3>
-            <div class="form-content">
-                <label class="form-label">물품 이름</label>
-                <input type="text" id="itemName" placeholder="물품 이름 (필수)" />
-
-                <label class="form-label" style="margin-top:12px">등록자 정보 (필수)</label>
-                <div class="info-group">
-                    <input type="text" id="requesterName" placeholder="이름+알파벳 (예: 김나눔a)" />
-                    <select id="requesterDept"></select>
+            <div class="form-group" style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                <div>
+                    <label class="form-label">등록자 이름 <span style="color:var(--accent-danger)">*</span></label>
+                    <input type="text" id="requesterName" class="form-input" placeholder="이름 (예: 김나눔)" />
                 </div>
-
-                <label class="form-label" style="margin-top:12px">카테고리 선택</label>
-                <select id="itemCategory"></select>
-
-                <label class="form-label" style="margin-top:12px">물품 사진 파일 선택 (1~3장 필수, 파일당 최대 5MB)</label>
-                <input type="file" id="itemImageFiles" accept="image/jpeg,image/jpg,image/png,image/webp" multiple />
-
-                <label class="form-label" style="margin-top:12px">상세 설명 및 나눔 조건 (필수)</label>
-                <textarea id="itemDescription" rows="6" placeholder="상세 설명을 입력하세요"></textarea>
-
-                <div class="form-actions" style="margin-top:12px;display:flex;gap:8px">
-                    <button class="primary" onclick="addItemAsync()">등록 요청하기</button>
-                    <button class="cancel-btn" onclick="showPage('main')">🔙 뒤로가기</button>
+                <div>
+                    <label class="form-label">소속 부서 <span style="color:var(--accent-danger)">*</span></label>
+                    <select id="requesterDept" class="form-select"></select>
                 </div>
             </div>
+
+            <div class="form-group">
+                <label class="form-label">카테고리 <span style="color:var(--accent-danger)">*</span></label>
+                <select id="itemCategory" class="form-select"></select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">사진 등록 (1~3장) <span style="color:var(--accent-danger)">*</span></label>
+                <div
+                    style="background:#f9fafb; padding:15px; border:1px dashed var(--border-color); border-radius:var(--radius-md);">
+                    <input type="file" id="itemImageFiles" accept="image/*" multiple
+                        style="display:block; width:100%;" />
+                    <small style="color:var(--text-sub); display:block; margin-top:5px;">개당 최대 5MB, jpg/png/webp
+                        지원</small>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">상세 설명 및 나눔 조건 <span style="color:var(--accent-danger)">*</span></label>
+                <textarea id="itemDescription" class="form-textarea" rows="6"
+                    placeholder="물품의 상태, 사용 기간, 특이사항 등을 자세히 적어주세요."></textarea>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:30px;">
+                <button class="btn-secondary" onclick="showPage('main')">취소</button>
+                <button class="btn-primary" onclick="addItemAsync()">등록 요청하기</button>
+            </div>
+        </div>
+
+        <!-- Admin List Page -->
+        <div id="adminListPage" style="display:none">
+            <div class="action-bar">
+                <h2>🚨 관리자 페이지 <span id="currentAdminDeptBadge"
+                        style="font-size:0.6em; background:var(--accent-danger); color:white; padding:2px 8px; border-radius:10px; vertical-align:middle;"></span>
+                </h2>
+                <button class="btn-secondary" onclick="showPage('main')">⬅ 메인으로</button>
+            </div>
+            <p style="margin-bottom:20px; color:var(--text-sub);">등록 승인 대기 또는 거래(예약) 진행 중인 물품 목록입니다.</p>
+            <div id="adminListContainer" class="grid-container"></div>
+        </div>
+
+        <!-- Item Detail / Apply Page -->
+        <div id="itemDetailPage" style="display:none" class="form-page">
+            <!-- Content injected via JS -->
         </div>
 
     </div>
 
+    <!-- Admin Footer Control -->
     <footer>
-        <button id="adminListBtn" onclick="showPage('adminListPage')" style="display:none"></button>
+        <div id="adminControls" style="display:flex; align-items:center;">
+            <!-- Injected -->
+        </div>
     </footer>
 
-    <div id="imageModal" class="image-modal" onclick="closeModal()">
-        <span class="modal-close">&times;</span>
+    <!-- Image Modal -->
+    <div id="imageModal" class="modal" onclick="closeModal()">
         <img class="modal-content" id="modalImage" onclick="event.stopPropagation()">
+        <button
+            style="position:absolute; top:20px; right:20px; background:none; border:none; color:white; font-size:2rem; cursor:pointer;">&times;</button>
     </div>
-    <script>
-        /**************************************************************************
-         * 정리한 스크립트: 변수, 초기 데이터, 헬퍼 함수, 렌더러, 이벤트 핸들러
-         **************************************************************************/
 
-        // --- 상태 ---
+    <script>
+        /**
+         * Nanuem Forest - Client Logic
+         * Updated for consistency, persistence, and stability.
+         */
+
+        // --- State ---
         let isAdmin = false;
         let adminDept = null;
         let currentCategoryFilter = null;
         let currentItemId = null;
 
-        // --- 상수 및 샘플 데이터 ---
-        const categories = ['유아용품','의류','잡화','소형가전','대형가전','가구','기타'];
-        const categoryIcons = { '유아용품':'🍼','의류':'👕','잡화':'👜','소형가전':'🔌','대형가전':'🏠','가구':'🛋️','기타':'🎁','전체 보기':'🔄' };
-        
-        // 🛠️ 부서명 변경 적용
-        const departments = ['교역자', '자문회', '장년회', '부녀회', '청년회', '학생회'];
-        
-        // 🛠️ 관리자 비밀번호 변경 적용
-        const adminPasswords = { 
-            '교역자':'교역자pw',
-            '자문회':'자문회pw',
-            '장년회':'장년회pw',
-            '부녀회':'부녀회pw',
-            '청년회':'청년회pw',
-            '학생회':'학생회pw'
-        };
-        const NO_IMAGE_TEXT = '이미지 없음';
-        const NO_IMAGE_PLACEHOLDER = 'https://via.placeholder.com/250/808080/FFFFFF?text=No+Image';
-        const THUMBNAIL_PLACEHOLDER = 'https://via.placeholder.com/60/808080/FFFFFF?text=No+Img';
-
-        // 샘플 아이템 (초기 데이터) - 🛠️ 데이터 구조 변경: imageUrl -> imageUrls
-        const items = [
-            { 
-                id:1, name:'유아 카시트 (ISOFIX)', status:'판매 중', description:'사용 기간 1년 미만, 깨끗합니다.', 
-                imageUrls:['https://via.placeholder.com/200/007BFF/FFFFFF?text=CarSeat_Main','https://via.placeholder.com/300/007BFF/FFFFFF?text=CarSeat_Side','https://via.placeholder.com/200/007BFF/FFFFFF?text=CarSeat_Detail'], // 배열로 변경
-                historyStatus:'신청 없음', category:'유아용품', requesterInfo:{name:'김나눔',dept:'교역자',team:'',id:''}, historyBuyerInfo:null, registerDate:'2025-11-10' 
-            },
-            { 
-                id:2, name:'여성용 겨울 코트 (90)', status:'거래 완료', description:'울 혼방, 상태 양호', 
-                imageUrls:['https://via.placeholder.com/150/8B4513/FFFFFF?text=Coat'], // 배열로 변경
-                historyStatus:'거래 확정', category:'의류', requesterInfo:{name:'이스타일',dept:'자문회',team:'',id:''}, historyBuyerInfo:{name:'테스트구매자2',dept:'장년회',team:'',id:''}, registerDate:'2025-11-11' 
+        // Default Data
+        const CONSTANTS = {
+            DEPARTMENTS: ['교역자', '자문회', '장년회', '부녀회', '청년회', '학생회'],
+            CATEGORIES: ['유아용품', '의류', '잡화', '소형가전', '대형가전', '가구', '도서/음반', '기타'],
+            CAT_ICONS: { '유아용품': '🍼', '의류': '👕', '잡화': '👜', '소형가전': '🔌', '대형가전': '🏠', '가구': '🛋️', '도서/음반': '📚', '기타': '🎁', '전체 보기': '🔄' },
+            // Passwords for demo purposes
+            ADMIN_PW: {
+                '교역자': '교역자pw', '자문회': '자문회pw', '장년회': '장년회pw',
+                '부녀회': '부녀회pw', '청년회': '청년회pw', '학생회': '학생회pw'
             }
-            // ... 나머지 샘플은 필요 시 추가
+        };
+
+        // Load Items from LocalStorage or Init
+        let items = JSON.parse(localStorage.getItem('nanum_items')) || [
+            {
+                id: 1, name: '유아 카시트 (ISOFIX)', status: '판매 중', description: '사용 기간 1년 미만, 깨끗합니다.\n세탁 완료했습니다.',
+                imageUrls: ['https://via.placeholder.com/400x300/2da44e/ffffff?text=CarSeat'],
+                historyStatus: '신청 없음', category: '유아용품',
+                requesterInfo: { name: '김나눔', dept: '교역자', team: '', id: '' }, historyBuyerInfo: null, registerDate: '2025-11-10'
+            },
+            {
+                id: 2, name: '겨울용 롱패딩 (L)', status: '거래 완료', description: '작년에 사고 3번 입었습니다.\n드라이클리닝 완료.',
+                imageUrls: ['https://via.placeholder.com/400x300/3b82f6/ffffff?text=Padding'],
+                historyStatus: '거래 확정', category: '의류',
+                requesterInfo: { name: '박성실', dept: '청년회', team: '', id: '' }, historyBuyerInfo: { name: '이이웃', dept: '장년회', team: '' }, registerDate: '2025-11-11'
+            }
         ];
 
-        // ========== 헬퍼 ==========
-        
-        // 🛠️ 변경: 아이템에서 표시할 이미지 URL을 가져오는 헬퍼 함수
-        function getDisplayImage(item, index = 0) {
-            if (item.imageUrls && item.imageUrls.length > index && item.imageUrls[index].trim() !== '') {
-                return item.imageUrls[index];
+        // --- Helpers ---
+        const saveItems = () => localStorage.setItem('nanum_items', JSON.stringify(items));
+        const getTodayDate = () => { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`; };
+        const getSafeImage = (item) => (item.imageUrls && item.imageUrls.length > 0) ? item.imageUrls[0] : 'https://via.placeholder.com/400x300/e5e7eb/9ca3af?text=No+Image';
+
+        // File Helpers
+        const convertFileToBase64 = (file) => {
+            return new Promise((resolve, reject) => {
+                if (file.size > 5 * 1024 * 1024) { reject('파일 크기 5MB 초과'); return; }
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = e => reject(e);
+                reader.readAsDataURL(file);
+            });
+        };
+
+        // --- Core Rendering ---
+        function init() {
+            renderCategorySelect();
+            renderDeptSelect('requesterDept');
+            renderCategoryGrid();
+            showPage('main');
+        }
+
+        function showPage(pageId, extraData = null) {
+            // Hide all pages
+            ['mainContent', 'registrationFormPage', 'adminListPage', 'categoryPage', 'itemDetailPage'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+
+            // Search Reset
+            if (pageId !== 'main') {
+                // Optional: clear search if leaving main
             }
-            return null;
+
+            switch (pageId) {
+                case 'main':
+                    document.getElementById('mainContent').style.display = 'block';
+                    searchItems();
+                    break;
+                case 'registrationFormPage':
+                    document.getElementById('registrationFormPage').style.display = 'block';
+                    break;
+                case 'adminListPage':
+                    document.getElementById('adminListPage').style.display = 'block';
+                    document.getElementById('currentAdminDeptBadge').textContent = isAdmin ? adminDept : 'Guest';
+                    renderAdminList();
+                    break;
+                case 'categoryPage':
+                    document.getElementById('categoryPage').style.display = 'block';
+                    renderCategoryGrid();
+                    break;
+                case 'itemDetailPage':
+                    document.getElementById('itemDetailPage').style.display = 'block';
+                    renderItemDetailPage(extraData);
+                    break;
+            }
+            updateAdminFooter();
         }
 
-        // 🛠️ 변경: 아이템에 유효한 이미지 URL이 있는지 확인 (최소 1장)
-        function isValidImageUrl(item){
-            return getDisplayImage(item) !== null;
+        // --- Rendering Items ---
+        function renderItems(displayItems) {
+            const container = document.getElementById('item-list-container');
+            container.innerHTML = '';
+
+            if (displayItems.length === 0) {
+                container.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;"><div class="empty-icon">🍃</div><p>등록된 물품이 없습니다.</p></div>`;
+                return;
+            }
+
+            displayItems.forEach(item => {
+                // Filtering for non-admins: hide 'Approval Waiting'
+                if (!isAdmin && item.status === '승인 대기') return;
+
+                const card = document.createElement('div');
+                card.className = 'card';
+
+                // Status Logic
+                let statusText = item.status;
+                let statusClass = 'st-selling';
+                if (item.status === '승인 대기') { statusClass = 'st-waiting'; }
+                else if (item.status === '예약중') { statusClass = 'st-reserved'; statusText = isAdmin ? ((item.historyStatus === '예약 승인') ? '예약 확정' : '승인 대기중') : '예약중'; }
+                else if (item.status === '거래 완료') { statusClass = 'st-completed'; }
+                else if (item.status === '취소됨') { statusClass = 'st-cancelled'; }
+
+                const mainImg = getSafeImage(item);
+
+                // Action Button logic for card footer
+                let divAction = '';
+                if (!isAdmin && item.status === '판매 중') {
+                    divAction = `<button class="btn-primary" style="padding:4px 12px; font-size:0.85rem;" onclick="showPage('itemDetailPage', ${item.id})">나눔 신청</button>`;
+                } else {
+                    divAction = `<span style="font-size:0.85rem; color:var(--text-sub);">${getRelativeTime(item.registerDate)}</span>`;
+                }
+
+                card.innerHTML = `
+                <div class="card-img-wrapper" onclick="toggleDetail(${item.id})">
+                    <img class="card-img" src="${mainImg}" loading="lazy" alt="${item.name}">
+                    <span class="status-badge ${statusClass}">${statusText}</span>
+                </div>
+                <div class="card-body" onclick="toggleDetail(${item.id})">
+                    <h3 class="card-title">${item.name}</h3>
+                    <div class="card-meta">
+                        <span class="meta-tag">📂 ${item.category}</span>
+                        <span class="meta-tag">👤 ${item.requesterInfo.dept}</span>
+                    </div>
+                </div>
+                <div class="detail-view" id="detail-${item.id}">
+                    <div class="detail-gallery">
+                        ${(item.imageUrls || []).map(url => `<img class="detail-thumb" src="${url}" onclick="openModal('${url}')">`).join('')}
+                    </div>
+                    <div class="detail-desc">${(item.description || '').replace(/\n/g, '<br>')}</div>
+                    ${renderAdminActions(item)}
+                </div>
+                <div class="card-footer">
+                   ${divAction}
+                </div>
+            `;
+                container.appendChild(card);
+            });
         }
 
-        function getTodayDate(){ const n=new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}` }
-        function getStatusClass(status){ if(status==='승인 대기') return 'status-waiting'; if(status==='판매 중') return 'status-selling'; if(status==='예약중') return 'status-reserved'; if(status==='거래 완료') return 'status-completed'; if(status==='취소됨') return 'status-cancelled'; return '' }
-        function getDisplayStatusText(internalStatus,item){ if(internalStatus==='승인 대기') return '승인 대기'; if(internalStatus==='판매 중') return '신청 가능'; if(internalStatus==='거래 완료') return '나눔 완료'; if(internalStatus==='예약중'){ if(!isAdmin) return '예약중'; if(item && item.historyStatus==='예약 승인') return '예약 확정 (2차 대기)'; if(item && item.historyStatus==='신청 중') return '예약 대기 (1차 대기)'; return '예약중' } return internalStatus }
-
-        // 🛠️ 변경: 파일 용량 제한 (2MB -> 5MB) 및 에러 메시지 수정
-        function convertFileToBase64(file){ 
-            return new Promise((resolve,reject)=>{ 
-                const reader = new FileReader(); 
-                const maxSize = 5*1024*1024; // 5MB
-                if(file.size>maxSize){ 
-                    reject(new Error('파일 크기가 5MB를 초과합니다.')); 
-                    return 
-                } 
-                reader.onload=()=>resolve(reader.result); 
-                reader.onerror=e=>reject(e); 
-                reader.readAsDataURL(file); 
-            }) 
-        }
-        
-        // 🛠️ 추가: 이미지 확대 모달 처리 함수
-        function openModal(imageUrl) {
-            const modal = document.getElementById('imageModal');
-            const modalImg = document.getElementById('modalImage');
-            modal.style.display = 'flex'; // flex로 변경하여 이미지 중앙 정렬
-            modalImg.src = imageUrl;
+        function getRelativeTime(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diffDay = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+            if (diffDay === 0) return '오늘';
+            if (diffDay < 7) return `${diffDay}일 전`;
+            return dateStr;
         }
 
+        function toggleDetail(id) {
+            const el = document.getElementById(`detail-${id}`);
+            if (el) el.style.display = el.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function renderAdminActions(item) {
+            if (!isAdmin) return '';
+            // Same logic as before to determine visibility
+            let buttons = '';
+            const canManage = (adminDept === item.requesterInfo.dept); // Assuming admin can only manage own department's items
+
+            if (item.status === '승인 대기' && canManage) {
+                buttons += `<div style="margin-top:10px; text-align:right;"><button class="btn-primary" onclick="approveItem(${item.id})">✅ 승인</button> <button class="btn-danger" onclick="deleteItem(${item.id})">🗑 삭제</button></div>`;
+            } else if (canManage) {
+                buttons += `<div style="margin-top:10px; text-align:right;"><button class="btn-secondary" onclick="editItem(${item.id})">✏ 수정</button> <button class="btn-danger" onclick="deleteItem(${item.id})">🗑 삭제</button></div>`;
+            }
+
+            return buttons;
+        }
+
+        // --- Search & Filter ---
+        function searchItems() {
+            const q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+            let result = items.slice().sort((a, b) => b.id - a.id);
+
+            if (q) {
+                result = result.filter(i => i.name.toLowerCase().includes(q) || i.description.toLowerCase().includes(q));
+                document.getElementById('clearSearchBtn').style.display = 'block';
+            } else {
+                document.getElementById('clearSearchBtn').style.display = 'none';
+            }
+
+            if (currentCategoryFilter) {
+                result = result.filter(i => i.category === currentCategoryFilter);
+            }
+
+            renderItems(result);
+
+            // Update Category Chip
+            const catBadge = document.getElementById('categoryStatus');
+            if (currentCategoryFilter) {
+                catBadge.style.display = 'flex';
+                document.getElementById('selectedCategoryName').textContent = currentCategoryFilter;
+            } else {
+                catBadge.style.display = 'none';
+            }
+        }
+
+        function clearSearchInput() {
+            document.getElementById('searchInput').value = '';
+            searchItems();
+        }
+
+        function filterByCategory(cat) {
+            currentCategoryFilter = cat;
+            showPage('main');
+        }
+
+        function renderCategoryGrid() {
+            const grid = document.getElementById('categoryGridContent');
+            grid.innerHTML = '';
+            CONSTANTS.CATEGORIES.forEach(cat => {
+                const btn = document.createElement('div');
+                btn.className = 'cat-card';
+                btn.innerHTML = `<span class="cat-icon">${CONSTANTS.CAT_ICONS[cat]}</span>${cat}`;
+                btn.onclick = () => filterByCategory(cat);
+                grid.appendChild(btn);
+            });
+            // 'All' button
+            const all = document.createElement('div');
+            all.className = 'cat-card';
+            all.innerHTML = `<span class="cat-icon">🔄</span>전체 보기`;
+            all.onclick = () => filterByCategory(null);
+            grid.appendChild(all);
+        }
+
+        function renderCategorySelect() {
+            const sel = document.getElementById('itemCategory');
+            sel.innerHTML = '<option value="">선택해주세요</option>';
+            CONSTANTS.CATEGORIES.forEach(c => {
+                sel.innerHTML += `<option value="${c}">${c}</option>`;
+            });
+        }
+
+        function renderDeptSelect(id) {
+            const sel = document.getElementById(id);
+            if (!sel) return;
+            sel.innerHTML = '<option value="">선택해주세요</option>';
+            CONSTANTS.DEPARTMENTS.forEach(d => {
+                sel.innerHTML += `<option value="${d}">${d}</option>`;
+            });
+        }
+
+        // --- Admin System (Secret Click) ---
+        let headerClicks = 0;
+        let lastHeaderClick = 0;
+        document.getElementById('headerTitle').addEventListener('click', () => {
+            if (isAdmin) return;
+            const now = Date.now();
+            if (now - lastHeaderClick > 1000) headerClicks = 0;
+            headerClicks++;
+            lastHeaderClick = now;
+            if (headerClicks === 3) loginAdmin();
+        });
+
+        function loginAdmin() {
+            const dept = prompt('관리자 로그인: 부서명(교역자, 청년회 등)을 입력하세요.');
+            if (!dept || !CONSTANTS.ADMIN_PW[dept]) { alert('올바르지 않은 부서명입니다.'); return; }
+            const pw = prompt('비밀번호를 입력하세요.');
+            if (pw === CONSTANTS.ADMIN_PW[dept]) {
+                isAdmin = true;
+                adminDept = dept;
+                alert(`[${dept}] 관리자로 로그인되었습니다.`);
+                showPage('main');
+            } else {
+                alert('비밀번호 불일치');
+            }
+        }
+
+        function logoutAdmin() {
+            isAdmin = false;
+            adminDept = null;
+            alert('로그아웃되었습니다.');
+            showPage('main');
+        }
+
+        function updateAdminFooter() {
+            const footer = document.querySelector('footer');
+            const container = document.getElementById('adminControls');
+            container.innerHTML = '';
+            if (isAdmin) {
+                footer.style.display = 'flex';
+                const adminItems = items.filter(i => (i.status === '승인 대기' || i.status === '예약중'));
+                const badge = adminItems.length > 0 ? ` <span style="background:red;border-radius:10px;padding:0 6px;font-size:0.8em">${adminItems.length}</span>` : '';
+
+                const listBtn = document.createElement('button');
+                listBtn.className = 'btn-primary';
+                listBtn.innerHTML = `🚨 관리 목록 ${badge}`;
+                listBtn.onclick = () => showPage('adminListPage');
+
+                const logoutBtn = document.createElement('button');
+                logoutBtn.className = 'btn-secondary';
+                logoutBtn.innerText = '로그아웃';
+                logoutBtn.onclick = logoutAdmin;
+
+                container.appendChild(listBtn);
+                container.appendChild(logoutBtn);
+            } else {
+                footer.style.display = 'none';
+            }
+        }
+
+        function renderAdminList() {
+            const listContainer = document.getElementById('adminListContainer');
+            listContainer.innerHTML = '';
+            if (!isAdmin) return;
+
+            // items waiting for action
+            const tasks = items.filter(i => (i.status === '승인 대기' || i.status === '예약중') && (i.requesterInfo.dept === adminDept || (i.historyBuyerInfo && i.historyBuyerInfo.dept === adminDept)));
+
+            if (tasks.length === 0) {
+                listContainer.innerHTML = `<div class="empty-state"><p>현재 대기 중인 관리 항목이 없습니다.</p></div>`;
+                return;
+            }
+
+            tasks.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                <div class="card-body">
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="font-weight:bold;">${item.name}</span>
+                        <span style="font-size:0.8em;color:var(--text-sub)">${item.status}</span>
+                    </div>
+                    <div style="margin:10px 0; font-size:0.9em; line-height:1.4">
+                        등록: ${item.requesterInfo.dept} ${item.requesterInfo.name}<br>
+                        ${item.historyBuyerInfo ? `신청: <span style="color:var(--secondary)">${item.historyBuyerInfo.dept} ${item.historyBuyerInfo.name}</span>` : ''}
+                    </div>
+                    <div style="display:flex; gap:5px; justify-content:flex-end;">
+                         ${getAdminActionButtons(item)}
+                    </div>
+                </div>
+             `;
+                listContainer.appendChild(card);
+            });
+        }
+
+        function getAdminActionButtons(item) {
+            // Logic specific to admin workflows
+            // 1. Register Approve
+            if (item.status === '승인 대기' && item.requesterInfo.dept === adminDept) {
+                return `<button class="btn-primary" onclick="approveItem(${item.id})">등록 승인</button> <button class="btn-danger" onclick="deleteItem(${item.id})">거절/삭제</button>`;
+            }
+            // 2. Trade Approve (1st step: Requester's admin approves)
+            if (item.status === '예약중' && item.historyStatus === '신청 중' && item.requesterInfo.dept === adminDept) {
+                return `<button class="btn-primary" onclick="approveTrade(${item.id})">신청 승인</button> <button class="btn-danger" onclick="cancelTrade(${item.id})">거절</button>`;
+            }
+            // 3. Trade Confirm (2nd step: Buyer's admin confirms received?) -> Actually usually seller confirms giving away. 
+            // Original logic: "2차 거래 완료" button appears.
+            if (item.status === '예약중' && item.historyStatus === '예약 승인') {
+                // Logic Check: Who confirms? Usually the person who gave the item or their admin.
+                if (item.requesterInfo.dept === adminDept) {
+                    return `<button class="btn-primary" onclick="confirmTrade(${item.id})">거래 완료 확정</button> <button class="btn-danger" onclick="cancelTrade(${item.id})">취소</button>`;
+                }
+            }
+            return `<span style="font-size:0.8em;color:#999;">권한 없음 (타부서 관리)</span>`;
+        }
+
+        // --- Actions ---
+        function approveItem(id) {
+            const item = items.find(i => i.id === id);
+            if (item) { item.status = '판매 중'; saveItems(); alert('승인되었습니다.'); renderAdminList(); showPage('main'); }
+        }
+        function deleteItem(id) {
+            if (confirm('정말 삭제하시겠습니까?')) {
+                items = items.filter(i => i.id !== id);
+                saveItems();
+                alert('삭제되었습니다.');
+                showPage('main');
+            }
+        }
+        function approveTrade(id) {
+            const item = items.find(i => i.id === id);
+            if (item) { item.historyStatus = '예약 승인'; saveItems(); alert('예약 승인되었습니다. 거래 완료 후 확정해주세요.'); renderAdminList(); }
+        }
+        function cancelTrade(id) {
+            const item = items.find(i => i.id === id);
+            if (item) {
+                if (confirm('예약을 취소하고 다시 판매 상태로 돌리시겠습니까?')) {
+                    item.status = '판매 중'; item.historyStatus = '신청 없음'; item.historyBuyerInfo = null;
+                    saveItems(); alert('취소되었습니다.'); renderAdminList();
+                }
+            }
+        }
+        function confirmTrade(id) {
+            const item = items.find(i => i.id === id);
+            if (item) { item.status = '거래 완료'; item.historyStatus = '거래 확정'; saveItems(); alert('거래가 완료되었습니다.'); renderAdminList(); showPage('main'); }
+        }
+
+        function editItem(id) {
+            const item = items.find(i => i.id === id);
+            if (!item) return;
+            const newName = prompt('수정할 이름:', item.name);
+            if (newName) {
+                item.name = newName;
+                item.description = prompt('수정할 설명:', item.description) || item.description;
+                saveItems();
+                alert('수정되었습니다.');
+                showPage('main');
+            }
+        }
+
+        // --- Registration Helpers ---
+        async function addItemAsync() {
+            // Collect Form Data
+            const name = document.getElementById('itemName').value.trim();
+            const rName = document.getElementById('requesterName').value.trim();
+            const rDept = document.getElementById('requesterDept').value;
+            const cat = document.getElementById('itemCategory').value;
+            const desc = document.getElementById('itemDescription').value.trim();
+            const files = document.getElementById('itemImageFiles').files;
+
+            if (!name || !rName || !rDept || !cat || !desc) { alert('모든 필수 정보를 입력해주세요.'); return; }
+            if (files.length === 0) { alert('사진을 최소 1장 등록해주세요.'); return; }
+
+            try {
+                const uploadedUrls = await Promise.all(Array.from(files).map(convertFileToBase64));
+
+                const newItem = {
+                    id: Date.now(), // simple unique id
+                    name,
+                    status: '승인 대기',
+                    description: desc,
+                    imageUrls: uploadedUrls,
+                    historyStatus: '신청 없음',
+                    category: cat,
+                    requesterInfo: { name: rName, dept: rDept },
+                    registerDate: getTodayDate()
+                };
+
+                items.unshift(newItem);
+                saveItems();
+                alert('등록 요청이 접수되었습니다. 관리자 승인 후 게시됩니다.');
+
+                // Clear Form
+                document.getElementById('itemName').value = '';
+                document.getElementById('itemDescription').value = '';
+                document.getElementById('itemImageFiles').value = '';
+
+                showPage('main');
+            } catch (e) {
+                alert('오류가 발생했습니다: ' + e);
+            }
+        }
+
+        // --- Apply Page ---
+        function renderItemDetailPage(itemId) {
+            const item = items.find(i => i.id === itemId);
+            const container = document.getElementById('itemDetailPage');
+            if (!item) { container.innerHTML = '<p>존재하지 않는 물품입니다.</p>'; return; }
+
+            renderDeptSelect('applyDept');
+
+            container.innerHTML = `
+            <div class="action-bar">
+                <h2>⭐ 나눔 신청</h2>
+                <button class="btn-secondary" onclick="showPage('main')">취소</button>
+            </div>
+            
+            <div style="display:grid; gap:20px; grid-template-columns: 1fr 1fr;">
+                 <div style="background:#f1f3f5; border-radius:var(--radius-lg); overflow:hidden;">
+                     <img src="${getSafeImage(item)}" style="width:100%; height:100%; object-fit:contain; max-height:300px;">
+                 </div>
+                 <div>
+                     <h3 style="margin-top:0">${item.name}</h3>
+                     <p style="color:var(--text-sub);">${item.category} | ${item.registerDate}</p>
+                     <p style="background:#fff; padding:15px; border-radius:10px; border:1px solid #eee;">${item.description}</p>
+                 </div>
+            </div>
+
+            <hr style="margin:30px 0; border:none; border-top:1px dashed #ddd;">
+
+            <h3>📝 신청자 정보</h3>
+            <p class="subtitle">담당자 승인 후 연락을 드리기 위해 정보를 입력해주세요.</p>
+            
+            <div class="form-group">
+                 <label class="form-label">신청자 이름</label>
+                 <input type="text" id="applyName" class="form-input" placeholder="이름 (예: 이신청)">
+            </div>
+            <div class="form-group">
+                 <label class="form-label">소속 부서</label>
+                 <select id="applyDept" class="form-select"></select>
+            </div>
+            
+            <button class="btn-primary" style="width:100%; margin-top:20px; padding:15px; font-size:1.1rem;" onclick="submitApplication(${item.id})">나눔 신청 완료</button>
+        `;
+            renderDeptSelect('applyDept');
+        }
+
+        function submitApplication(id) {
+            const item = items.find(i => i.id === id);
+            const name = document.getElementById('applyName').value.trim();
+            const dept = document.getElementById('applyDept').value;
+            if (!name || !dept) { alert('정보를 모두 입력해주세요.'); return; }
+
+            if (confirm('신청하시겠습니까?')) {
+                item.status = '예약중';
+                item.historyStatus = '신청 중';
+                item.historyBuyerInfo = { name, dept };
+                saveItems();
+                alert('신청이 완료되었습니다.');
+                showPage('main');
+            }
+        }
+
+        // Modal Logic
+        function openModal(src) {
+            document.getElementById('modalImage').src = src;
+            document.getElementById('imageModal').style.display = 'flex';
+        }
         function closeModal() {
             document.getElementById('imageModal').style.display = 'none';
         }
-        // ===========================================
 
-
-        // ========== 렌더링 ==========
-        function renderCategoryGrid(){
-            const grid = document.querySelector('#categoryPage .category-grid'); grid.innerHTML='';
-            categories.forEach(cat=>{
-                const div=document.createElement('div'); div.className='category-item'; div.dataset.category=cat; div.innerHTML=`<div style="font-size:1.6rem">${categoryIcons[cat]||'❓'}</div>${cat}`;
-                div.onclick = ()=>{ filterByCategory(cat); showPage('main'); };
-                grid.appendChild(div);
-            });
-            const all = document.createElement('div'); all.className='category-item'; all.dataset.category=null; all.innerHTML=`<div style="font-size:1.6rem">${categoryIcons['전체 보기']||'🔄'}</div>전체 보기`; 
-            all.onclick=()=>{ filterByCategory(null); showPage('main'); }; 
-            grid.appendChild(all);
-            
-            // 초기 활성화 상태 설정
-            document.querySelectorAll('.category-item').forEach(btn => {
-                if (btn.dataset.category === currentCategoryFilter || (!currentCategoryFilter && btn.innerHTML.includes('전체 보기'))) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
-        }
-
-        function renderCategorySelect(){ const sel = document.getElementById('itemCategory'); sel.innerHTML='<option value="">--- 카테고리 선택 ---</option>'; categories.forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o) }); }
-        function renderDeptSelect(elementId,defaultValue=''){ const sel = document.getElementById(elementId); if(!sel) return; sel.innerHTML=`<option value="">--- 부서 선택 (필수) ---</option>`; departments.forEach(d=>{ const o=document.createElement('option'); o.value=d; o.textContent=d; if(d===defaultValue) o.selected=true; sel.appendChild(o) }); }
-
-        function renderItems(displayItems){
-            const list = document.getElementById('item-list-container'); list.innerHTML='';
-            let filtered = displayItems.slice();
-            // 관리자가 아니면 '승인 대기'는 숨김
-            if (!isAdmin) { filtered = filtered.filter(item => item.status !== '승인 대기'); }
-            // 카테고리 필터 적용
-            if(currentCategoryFilter) filtered = filtered.filter(i=>i.category===currentCategoryFilter);
-            
-            const statusOrder = {' 판매 중':1,'예약중':2,'거래 완료':3};
-            filtered.sort((a,b)=> (statusOrder[a.status]||99)-(statusOrder[b.status]||99));
-
-            if(filtered.length===0){ list.innerHTML='<p style="text-align:center;color:#777;padding:20px;margin:0">조건에 맞는 물품이 없습니다.</p>'; return }
-
-            filtered.forEach(item=>{
-                // 🛠️ 변경: 첫 번째 이미지를 썸네일로 사용
-                const firstImageUrl = getDisplayImage(item, 0);
-                const isNoImage = firstImageUrl === null;
-                const displayImageUrl = isNoImage?THUMBNAIL_PLACEHOLDER:firstImageUrl;
-                const thumbnailHtml = isNoImage?`<div class="item-thumbnail-wrapper">${NO_IMAGE_TEXT}</div>`:`<div class="item-thumbnail-wrapper"><img class="item-thumbnail" src="${displayImageUrl}" alt="${item.name} 이미지"></div>`;
-                
-                const statusText = getDisplayStatusText(item.status,item);
-                const statusClass = getStatusClass(item.status);
-                let actionButton = '';
-                if(!isAdmin && item.status==='판매 중') actionButton=`<button class="primary" onclick="showPage('itemDetailPage',${item.id})">나눔 신청</button>`;
-                
-                // 🎯 부서 정보 노출 및 줄바꿈
-                let requesterInfoDisplay = `${item.requesterInfo.dept||'미상'}`; // 부서명만
-                if(isAdmin) { requesterInfoDisplay += ` (${item.requesterInfo.name})`; } // 관리자: 부서 (이름)
-                const itemInfoContent = `카테고리: ${item.category||'미분류'} | 등록일: ${item.registerDate||'-'}<br>등록 부서: ${requesterInfoDisplay}`;
-
-                const card = document.createElement('div'); card.className='item-card'; card.dataset.id=item.id;
-                card.innerHTML = `${thumbnailHtml}<div class="item-content"><div class="item-header"><span class="item-name" title="${item.name}">${item.name}</span><span class="item-status ${statusClass}">${statusText}</span></div><div class="item-info">${itemInfoContent}</div><div class="item-actions">${actionButton}</div></div>`;
-                card.onclick = (e)=>toggleDetails(item.id,e);
-                list.appendChild(card);
-
-                const detailDiv = document.createElement('div'); detailDiv.className='detail-row'; detailDiv.id=`detail-${item.id}`;
-                const formattedDescription = (item.description||'설명이 없습니다.').replace(/\n/g,'<br>');
-                
-                // 🛠️ 변경: 다중 이미지 갤러리 렌더링
-                let detailImageHtml = '';
-                if (item.imageUrls && item.imageUrls.length > 0) {
-                    detailImageHtml = '<div class="detail-image-gallery">';
-                    item.imageUrls.forEach(url => {
-                        if (url && url.trim() !== '') {
-                             // 🛠️ 수정: 이미지를 클릭하면 openModal 함수 호출 추가
-                             detailImageHtml += `<div class="detail-image-box"><img src="${url}" alt="${item.name} 상세 이미지" onclick="openModal('${url}')"></div>`;
-                        }
-                    });
-                    detailImageHtml += '</div>';
-                } else {
-                    detailImageHtml = `<div class="detail-no-image">${NO_IMAGE_TEXT}</div>`;
-                }
-
-
-                let requesterInfoHtml = '';
-                // '팀' 정보 제거 적용
-                if(isAdmin){ requesterInfoHtml = `<div style="margin-top:12px"><strong>등록자 정보 (관리자 전용):</strong><br>이름: ${item.requesterInfo.name} | 부서: ${item.requesterInfo.dept}</div>` }
-                
-                let deleteButtonHtml = '';
-                const canDelete = isAdmin && adminDept===item.requesterInfo.dept;
-                if(canDelete) deleteButtonHtml = `<button class="cancel-btn" onclick="deleteItem(${item.id})">🗑️ 물품 삭제 (관리자)</button>`;
-
-                let buyerInfoHtml = '';
-                // '팀' 정보 제거 적용
-                if(isAdmin && item.historyBuyerInfo) buyerInfoHtml = `<div style="margin-top:12px;border-top:1px dashed #ddd;padding-top:8px"><strong>신청자 정보 (관리자 전용):</strong><br>이름: ${item.historyBuyerInfo.name} | 부서: ${item.historyBuyerInfo.dept}</div>`;
-
-                let editButtonHtml = '';
-                const canEdit = isAdmin && adminDept===item.requesterInfo.dept;
-                if(canEdit) editButtonHtml = `<button class="accent" onclick="editItem(${item.id})">✍️ 물품 수정 (관리자)</button>`;
-                
-                detailDiv.innerHTML = `<div class="detail-content">${detailImageHtml}<div style="margin-top:12px"><strong>상세 설명:</strong><br>${formattedDescription}</div>${requesterInfoHtml}${buyerInfoHtml}<div style="margin-top:12px;text-align:right">${editButtonHtml} ${deleteButtonHtml}</div></div>`;
-                list.appendChild(detailDiv);
-            });
-            updateAdminButtonStatus();
-        }
-
-        // 상세 보기 토글 (단, 버튼 클릭은 막음)
-        function toggleDetails(itemId,event){
-            const detailDiv = document.getElementById(`detail-${itemId}`);
-            const isAction = event.target.closest('.item-actions') || event.target.closest('button');
-            if(isAction) return; // 버튼 클릭일 때는 상세 토글 방지
-            if(!detailDiv) return;
-            const isOpen = detailDiv.style.display==='block';
-            document.querySelectorAll('.detail-row').forEach(d=>d.style.display='none');
-            detailDiv.style.display = isOpen? 'none' : 'block';
-        }
-
-        // ========== 페이지 전환 ==========
-        function showPage(pageId,itemId=null){
-            const pages = ['mainContent','registrationFormPage','adminListPage','categoryPage','itemDetailPage'];
-            pages.forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display = 'none'; });
-            if(pageId==='main'){ document.getElementById('mainContent').style.display='block'; searchItems(); }
-            else if(pageId==='registrationFormPage'){ document.getElementById('registrationFormPage').style.display='block'; renderCategorySelect(); renderDeptSelect('requesterDept'); }
-            else if(pageId==='adminListPage'){ document.getElementById('adminListPage').style.display='block'; document.getElementById('currentAdminDept').textContent = isAdmin?adminDept:'로그아웃 상태'; renderAdminList(); }
-            else if(pageId==='categoryPage'){ document.getElementById('categoryPage').style.display='block'; renderCategoryGrid(); }
-            else if(pageId==='itemDetailPage'){ document.getElementById('itemDetailPage').style.display='block'; if(itemId!==null) renderItemDetailPage(itemId); }
-            updateAdminButtonStatus();
-        }
-
-        // ========== 검색/필터링 ==========
-        function searchItems(){
-            const q = (document.getElementById('searchInput').value||'').trim().toLowerCase();
-            const filtered = items.filter(i=> i.name.toLowerCase().includes(q));
-            renderItems(filtered);
-            
-            // 검색 시에는 카테고리 필터 초기화 (검색과 필터 중 하나만 적용)
-            currentCategoryFilter = null;
-            renderCategoryGrid(); // 카테고리 버튼의 활성화 상태 초기화
-            document.getElementById('currentCategoryDisplay').style.display = 'none';
-        }
-
-        function clearSearchInput(){ 
-            document.getElementById('searchInput').value=''; 
-            document.getElementById('clearSearchBtn').style.display='none'; 
-            searchItems(); 
-        }
-        
-        function filterByCategory(category) {
-            // 1. 검색창 초기화
-            document.getElementById('searchInput').value = '';
-            document.getElementById('clearSearchBtn').style.display = 'none';
-
-            // 2. 필터 적용 및 렌더링
-            currentCategoryFilter = category;
-            renderItems(items);
-
-            // 3. 현재 카테고리 표시 및 버튼 업데이트 (요청사항 반영)
-            const display = document.getElementById('currentCategoryDisplay');
-            const nameSpan = document.getElementById('selectedCategoryName');
-            
-            if (category) {
-                // 카테고리가 선택된 경우 표시
-                display.style.display = 'flex'; 
-                nameSpan.textContent = category;
-            } else {
-                // 필터가 해제된 경우 숨김
-                display.style.display = 'none';
-                nameSpan.textContent = '';
-            }
-            renderCategoryGrid();
-        }
-
-        // ========== 관리자 로그인 (헤더 3회 클릭) ==========
-        let headerClickCount=0,lastClickTime=0,TIMEOUT_MS=1000;
-        document.getElementById('headerTitle').addEventListener('click',()=>{
-            if(isAdmin) return; const now=Date.now(); if(now-lastClickTime>TIMEOUT_MS) headerClickCount=1; else headerClickCount++; lastClickTime=now; if(headerClickCount===3){ headerClickCount=0; loginAdmin(); }
-        });
-
-        function loginAdmin(){
-            const dept = prompt('관리자 로그인 - 부서를 입력하세요 (예: 교역자, 자문회 등)'); if(!dept) return; // 🛠️ 부서명 프롬프트 변경
-            if(!adminPasswords[dept]){ alert('알 수 없는 부서입니다.'); return; }
-            const pw = prompt(`${dept} 비밀번호를 입력하세요`); if(pw===null) return;
-            if(pw === adminPasswords[dept]){ isAdmin=true; adminDept=dept; alert(`관리자(${adminDept})로 로그인되었습니다.`); showPage('main'); }
-            else{ alert('비밀번호가 틀렸습니다.'); }
-        }
-        function logoutAdmin(){ isAdmin=false; adminDept=null; alert('관리자에서 로그아웃되었습니다.'); showPage('main'); }
-
-        // ========== 관리자 관련 액션 ==========
-        function checkAdminAuth(item,actionType){ if(!isAdmin) return false; if(actionType==='register_approve' || actionType==='delete' || actionType==='edit') return adminDept===item.requesterInfo.dept; if(actionType==='trade_approve') return adminDept===item.requesterInfo.dept; if(actionType==='trade_confirm'){ if(!item.historyBuyerInfo) return false; return adminDept===item.historyBuyerInfo.dept } return false }
-
-        function renderAdminList(){ 
-            if(!isAdmin) return; 
-            const list = document.getElementById('adminListContainer'); list.innerHTML=''; 
-            const adminItems = items.filter(i=> i.status==='승인 대기' || i.status==='예약중'); 
-            
-            if(adminItems.length===0){ 
-                list.innerHTML='<p style="text-align:center;color:#555;padding:20px;margin:0">현재 관리 대기 중인 물품이 없습니다.</p>'; 
-                return 
-            }
-            
-            adminItems.forEach(item=>{
-                let displayStatus=''; let actions='';
-                const canApproveRegister = checkAdminAuth(item,'register_approve');
-                const canApproveTrade = checkAdminAuth(item,'trade_approve');
-                const canConfirmTrade = checkAdminAuth(item,'trade_confirm');
-
-                if(item.status==='승인 대기'){ 
-                    displayStatus='등록 승인 대기'; 
-                    const reqDept=item.requesterInfo.dept; 
-                    if(canApproveRegister) actions = `<button class="primary" onclick="approveItem(${item.id})">✅ 등록 승인</button> <button class="cancel-btn" onclick="deleteItem(${item.id})">❌ 삭제</button>`; 
-                    else actions=`<button class="pill disabled">권한 없음 (담당: ${reqDept})</button>` 
-                }
-                else if(item.status==='예약중'){
-                    if(item.historyStatus==='신청 중'){ 
-                        displayStatus='1차 대기 (신청 승인)'; 
-                        const reqDept=item.requesterInfo.dept; 
-                        if(canApproveTrade) actions=`<button class="primary" onclick="approveTrade(${item.id})">✅ 1차 신청 승인</button> <button class="cancel-btn" onclick="cancelTradeByAdmin(${item.id})">❌ 신청 거절</button>`; 
-                        else actions=`<button class="pill disabled">권한 없음 (담당: ${reqDept})</button>` 
-                    }
-                    else if(item.historyStatus==='예약 승인'){ 
-                        displayStatus='2차 대기 (거래 완료)'; 
-                        const reqDept = item.historyBuyerInfo?item.historyBuyerInfo.dept:'신청자 없음'; 
-                        if(canConfirmTrade) actions=`<button class="primary" onclick="confirmTrade(${item.id})">📦 2차 거래 완료</button> <button class="cancel-btn" onclick="cancelTradeByAdmin(${item.id})">🚫 예약 취소</button>`; 
-                        else actions=`<button class="pill disabled">권한 없음 (담당: ${reqDept})</button>` 
-                    }
-                    else displayStatus='예약중 (상태 오류)';
-                }
-
-                // 🛠️ 변경: 첫 번째 이미지를 썸네일로 사용
-                const firstImageUrl = getDisplayImage(item, 0);
-                const isNoImage = firstImageUrl === null;
-                const displayImageUrl = isNoImage?THUMBNAIL_PLACEHOLDER:firstImageUrl;
-                const thumb = isNoImage?`<div class="item-thumbnail-wrapper">${NO_IMAGE_TEXT}</div>`:`<div class="item-thumbnail-wrapper"><img class="item-thumbnail" src="${displayImageUrl}" alt="${item.name}"></div>`;
-                
-                const card = document.createElement('div'); card.className='item-card admin-card'; card.style.cursor='default';
-
-                // 신청자 정보 추가 로직 (팀 정보 제거)
-                let applicantInfoHtml = '';
-                if (item.status === '예약중' && item.historyBuyerInfo) {
-                    const buyer = item.historyBuyerInfo;
-                    applicantInfoHtml = `<div style="margin-top:4px;font-size:0.9em;color:var(--accent)"><strong>신청 부서:</strong> ${buyer.dept} | 신청자: ${buyer.name}</div>`;
-                }
-
-                // 등록자 정보에서 '팀' 제거
-                card.innerHTML = `${thumb}<div class="item-content"><div class="item-header"><span class="item-name">${item.name}</span><span class="item-status ${getStatusClass(item.status)}">${displayStatus}</span></div><div class="item-info">카테고리: ${item.category||'미분류'} | 등록일: ${item.registerDate||'-'}</div><div style="margin-top:6px;font-size:0.9em"><strong>등록 부서:</strong> ${item.requesterInfo.dept} | 등록자: ${item.requesterInfo.name}</div>${applicantInfoHtml}<div style="margin-top:8px" class="item-actions">${actions}</div></div>`;
-                list.appendChild(card);
-            })
-        }
-
-        function updateAdminButtonStatus(){
-            const footer = document.querySelector('footer'); const adminListBtn = document.getElementById('adminListBtn'); const existingLogout = document.getElementById('dynamicLogoutBtn'); if(existingLogout) existingLogout.remove();
-            const adminPageVisible = document.getElementById('adminListPage').style.display !== 'none'; const registrationVisible = document.getElementById('registrationFormPage').style.display !== 'none';
-            if(isAdmin){ footer.style.display='flex'; if(!adminPageVisible && !registrationVisible){ const adminCount = items.filter(i=> i.status==='승인 대기' || i.status==='예약중').length; adminListBtn.style.display='inline-block'; adminListBtn.textContent = `🚨 관리 목록 (${adminCount}건) [${adminDept}]`; const logoutBtn=document.createElement('button'); logoutBtn.id='dynamicLogoutBtn'; logoutBtn.textContent='관리자 로그아웃'; logoutBtn.onclick = logoutAdmin; footer.appendChild(adminListBtn); footer.appendChild(logoutBtn);
-                } else { adminListBtn.style.display='none'; const logoutBtn=document.createElement('button'); logoutBtn.id='dynamicLogoutBtn'; logoutBtn.textContent=`로그아웃 (${adminDept})`; logoutBtn.onclick = logoutAdmin; footer.appendChild(logoutBtn); }
-            } else { footer.style.display='none'; adminListBtn.style.display='none'; }
-        }
-
-        function editItem(itemId) {
-            const item = items.find(i => i.id === itemId);
-            if (!item) return;
-            if (!checkAdminAuth(item, 'edit')) { alert('수정 권한이 없습니다.'); return; }
-
-            const newName = prompt(`[${item.name}]의 새 물품 이름을 입력하세요 (현재: ${item.name}):`, item.name);
-            if (newName === null) return;
-            const newDescription = prompt(`[${item.name}]의 새 상세 설명 (현재: ${item.description.substring(0, 20)}...):`, item.description);
-            if (newDescription === null) return;
-            const newCategory = prompt(`[${item.name}]의 새 카테고리를 입력하세요 (현재: ${item.category}).\n선택 가능: ${categories.join(', ')}`, item.category);
-            if (newCategory === null) return;
-            if (!categories.includes(newCategory.trim())) { alert('유효하지 않은 카테고리입니다. 기존 카테고리가 유지됩니다.'); return; }
-
-            const newRName = prompt(`[${item.name}] 등록자 이름 (현재: ${item.requesterInfo.name}):`, item.requesterInfo.name);
-            if (newRName === null) return;
-
-            // 부서 변경 로직 
-            let newRDept = item.requesterInfo.dept;
-            // 🛠️ 부서명 목록 변경 적용
-            const deptPrompt = `[${item.name}] 등록자 부서 (현재: ${item.requesterInfo.dept})\n\n선택 가능한 부서: ${departments.join(', ')}\n새 부서를 입력하세요:`;
-            let inputDept = prompt(deptPrompt, item.requesterInfo.dept);
-
-            if (inputDept === null) return;
-            if (departments.includes(inputDept.trim())) {
-                 newRDept = inputDept.trim();
-            } else {
-                 alert('유효하지 않은 부서입니다. 기존 부서가 유지됩니다.');
-            }
-            
-            // 🛠️ 변경: 이미지 배열을 다루기 복잡하므로, 수정 시에는 '대표 이미지 URL'을 새로 입력 받거나 기존 것을 유지하도록 단순화합니다.
-            const currentMainImageUrl = getDisplayImage(item, 0) || '없음';
-            const newMainImageUrl = prompt(`[${item.name}]의 새 대표 이미지 URL을 입력하세요 (현재: ${currentMainImageUrl}).\n변경하지 않으려면 '유지'를 입력하세요:`, currentMainImageUrl);
-            
-            if (newMainImageUrl === null) return;
-
-            // 기본 정보 업데이트
-            item.name = newName.trim();
-            item.description = newDescription.trim();
-            item.category = newCategory.trim();
-            item.requesterInfo.name = newRName.trim();
-            item.requesterInfo.dept = newRDept.trim(); 
-            item.requesterInfo.team = ''; // 팀은 빈 값으로 저장
-            
-            // 이미지 업데이트: '유지'가 아니면서 공백이 아닐 경우 첫 번째 URL만 업데이트
-            if (newMainImageUrl !== '유지' && newMainImageUrl.trim() !== currentMainImageUrl && newMainImageUrl.trim() !== '없음') {
-                 // 기존 배열을 유지하면서 첫 번째 요소만 업데이트
-                 item.imageUrls = [newMainImageUrl.trim(), ...item.imageUrls.slice(1)].filter(url => url.trim() !== '');
-                 if(item.imageUrls.length === 0) item.imageUrls = []; // 모두 빈 문자열일 경우 빈 배열로
-            }
-
-
-            alert(`물품 [${item.name}]의 정보가 수정되었습니다.`);
-            showPage('main');
-        }
-
-        // ========== 관리자 액션 구현 ==========
-        function approveItem(itemId){ const idx = items.findIndex(i=>i.id===itemId); if(idx<0) return; const it = items[idx]; if(!checkAdminAuth(it,'register_approve')){ alert('권한이 없습니다.'); return } it.status='판매 중'; it.registerDate = getTodayDate(); alert(`물품 [${it.name}] 등록이 승인되어 '판매 중' 상태가 됩니다.`); renderAdminList(); showPage('main'); }
-        function deleteItem(itemId){ const idx = items.findIndex(i=>i.id===itemId); if(idx<0) return; const it=items[idx]; if(!isAdmin || adminDept!==it.requesterInfo.dept){ if(!confirm('관리자 권한이 없어도 삭제할 수 있습니다. 계속 진행할까요?')) return; }
-            if(!confirm(`물품 [${it.name}]을(를) 정말 삭제하시겠습니까?`)) return; items.splice(idx,1); alert('삭제 완료'); renderAdminList(); showPage('main'); }
-        function approveTrade(itemId){ const it = items.find(i=>i.id===itemId); if(!it) return; if(!checkAdminAuth(it,'trade_approve')){ alert('권한 없음'); return } it.historyStatus='예약 승인'; // 1차 -> 2차 대기
-            alert(`신청 승인 완료. 신청자 부서(${it.historyBuyerInfo?it.historyBuyerInfo.dept:'-'})의 관리자 확인 대기`); renderAdminList(); showPage('main'); }
-        function cancelTradeByAdmin(itemId){ const it = items.find(i=>i.id===itemId); if(!it) return; if(!isAdmin){ alert('관리자 권한 필요'); return } // 권한 체크는 상황에 따라 이미 적용된 버튼만 표시됨
-            it.status='판매 중'; it.historyStatus='신청 없음'; it.historyBuyerInfo=null; alert('예약/신청이 취소되었습니다.'); renderAdminList(); showPage('main'); }
-        function confirmTrade(itemId){ const it = items.find(i=>i.id===itemId); if(!it) return; if(!checkAdminAuth(it,'trade_confirm')){ alert('권한 없음'); return } it.status='거래 완료'; it.historyStatus='거래 확정'; alert(`물품 [${it.name}] 거래가 완료 처리되었습니다.`); renderAdminList(); showPage('main'); }
-
-        // ========== 신청 처리 ==========
-        function renderItemDetailPage(itemId){ 
-            const item = items.find(i=>i.id===itemId); 
-            const detailPage = document.getElementById('itemDetailPage'); 
-            currentItemId=itemId; 
-            if(!item || item.status!=='판매 중'){ detailPage.innerHTML=`<h3>🚫 나눔 신청 불가</h3><p>이 물품은 현재 신청 가능한 상태가 아닙니다.</p><button class="cancel-btn" onclick="showPage('main')">🔙 뒤로가기</button>`; return }
-            
-            // 🛠️ 변경: 첫 번째 이미지를 대표 이미지로 사용
-            const firstImageUrl = getDisplayImage(item, 0);
-            const isNoImage = firstImageUrl === null; 
-            const displayImageUrl = isNoImage?NO_IMAGE_PLACEHOLDER:firstImageUrl; 
-            // 신청 페이지에서는 이미지를 클릭해도 확대 기능을 제공하지 않습니다.
-            const imageHtml = isNoImage?`<div class="image-container" style="height:150px;background:#e0e0e0;display:flex;align-items:center;justify-content:center;font-weight:700">${NO_IMAGE_TEXT}</div>`:`<div class="image-container"><img src="${displayImageUrl}" alt="${item.name}"></div>`;
-            
-            renderDeptSelect('applyDept');
-            // 나눔 신청 폼에서 '팀' 필드 제거 및 이름 placeholder 변경
-            detailPage.innerHTML = `<h3>⭐ 나눔 신청: ${item.name}</h3><div class="item-detail-info" style="display:flex;gap:16px;margin-top:12px">${imageHtml}<div class="text-content"><h2 style="margin:0">${item.name}</h2><p style="white-space:pre-wrap">${item.description}</p><strong>카테고리: ${item.category||'미분류'}</strong><strong style="display:block;margin-top:6px">등록일: ${item.registerDate||'-'}</strong></div></div><div style="margin-top:14px;padding:12px;border:2px solid var(--success);border-radius:10px;background:#f0fff0"><h4 style="margin:0 0 8px">📝 신청자 정보 입력</h4><p style="margin:0 0 8px">아래 정보 입력 후 나눔신청을 눌러주세요. <br>담당자 승인 후 연락 예정입니다.</p><div class="info-group" style="margin-top:8px"><input type="text" id="applyName" placeholder="이름+알파벳 (예: 김나눔a)"><select id="applyDept"></select></div><div style="margin-top:12px"><button class="primary" onclick="submitTradeApplication()">나눔 신청</button> <button class="cancel-btn" onclick="showPage('main')">🔙 뒤로가기</button></div></div>`; renderDeptSelect('applyDept'); 
-        }
-
-        function submitTradeApplication(){ 
-            const item = items.find(i=>i.id===currentItemId); 
-            if(!item || item.status!=='판매 중'){ alert('신청할 수 없는 물품입니다.'); showPage('main'); return }
-            
-            // '팀' 필드 제거 반영
-            const applyInfo = { 
-                name: (document.getElementById('applyName').value||'').trim(), 
-                dept: document.getElementById('applyDept').value, 
-                team: '', // '팀'은 빈 값으로 저장
-                id: '' 
-            };
-            
-            // '팀' 유효성 검사 제거 반영
-            if(!applyInfo.name||!applyInfo.dept){ alert('이름과 부서를 모두 입력해주세요.'); return }
-
-            item.status='예약중'; item.historyStatus='신청 중'; item.historyBuyerInfo=applyInfo; alert(`물품 [${item.name}] 나눔 신청 완료. 담당자 승인 후 연락 예정입니다..`); showPage('main'); 
-        }
-
-        // ========== 파일 업로드 & 등록 요청 처리 ==========
-        
-        // 🛠️ 변경: 멀티 파일 처리 및 유효성 검사 로직 업데이트
-        async function addItemAsync(){
-            const name = (document.getElementById('itemName').value||'').trim(); 
-            const rName=(document.getElementById('requesterName').value||'').trim(); 
-            const rDept=document.getElementById('requesterDept').value; 
-            const rId = ''; 
-            const category=document.getElementById('itemCategory').value; 
-            const description=(document.getElementById('itemDescription').value||'').trim(); 
-            
-            // 🛠️ 변경: 다중 파일 입력 필드 ID 사용
-            const files = document.getElementById('itemImageFiles').files;
-            
-            if(!name||!description||!category||!rName||!rDept){ 
-                alert('물품 이름, 등록자 정보(이름, 부서), 카테고리, 상세 설명을 모두 입력해주세요.'); 
-                return 
-            }
-
-            // 파일 개수 유효성 검사 (1~3장)
-            if (files.length === 0) {
-                alert('물품 사진을 최소 1장 이상 등록해주세요.');
-                return;
-            }
-            if (files.length > 3) {
-                alert('물품 사진은 최대 3장까지만 등록 가능합니다. 3장 이하로 다시 선택해주세요.');
-                return;
-            }
-            
-            let imageUrls = []; // 배열로 Base64 문자열 저장
-            try{ 
-                // 모든 파일을 Base64로 변환 (5MB 제한 적용됨)
-                const conversionPromises = Array.from(files).map(file => convertFileToBase64(file));
-                imageUrls = await Promise.all(conversionPromises);
-                imageUrls = imageUrls.filter(url => url && url.trim() !== ''); // 빈 문자열 제거
-            }catch(err){ 
-                console.error('파일 변환 오류',err); 
-                // 5MB 제한 반영된 에러 메시지
-                alert(`이미지 파일 변환에 실패했습니다. 파일당 최대 5MB 이하로 시도해 주세요. (${err.message})`); 
-                return 
-            }
-            
-            const newId = items.reduce((m,i)=>Math.max(m,i.id),0)+1;
-            
-            // 🛠️ 변경: imageUrl -> imageUrls 배열 저장
-            const newItem = { 
-                id:newId, name, status:'승인 대기', description, 
-                imageUrls: imageUrls, 
-                historyStatus:'신청 없음', category, 
-                requesterInfo:{name:rName,dept:rDept,team:'',id:rId}, 
-                historyBuyerInfo:null, registerDate:getTodayDate() 
-            };
-            
-            items.unshift(newItem); 
-            alert(`물품 등록 요청이 접수되었습니다. 관리자의 승인 대기 상태입니다. (id:${newId})`);
-            
-            // 폼 초기화
-            document.getElementById('itemName').value=''; 
-            document.getElementById('requesterName').value=''; 
-            document.getElementById('requesterDept').value=''; 
-            document.getElementById('itemCategory').value=''; 
-            document.getElementById('itemDescription').value=''; 
-            // 🛠️ 변경: 파일 입력 필드 ID
-            document.getElementById('itemImageFiles').value='';
-            
-            showPage('main');
-        }
-
-        // ========== 초기 이벤트 바인딩 및 시작 ==========
-        document.getElementById('searchInput').addEventListener('input',()=>{ 
-            const v=document.getElementById('searchInput').value; 
-            document.getElementById('clearSearchBtn').style.display = v.trim()? 'inline-block':'none'; 
-            searchItems(); 
-        });
-
-        // 초기화
-        window.onload = ()=>{ 
-            showPage('main'); 
-            renderCategoryGrid(); 
-            renderCategorySelect(); 
-            renderDeptSelect('requesterDept'); 
-        }
-
+        // Init
+        window.onload = init;
     </script>
 </body>
+
 </html>
