@@ -664,18 +664,16 @@
                 <div
                     style="background:#f9fafb; padding:15px; border:1px dashed var(--border-color); border-radius:var(--radius-md); text-align:center;">
                     <div style="position:relative; display:inline-block; overflow:hidden;">
-                        <!-- Button visual only -->
-                        <button type="button" class="btn-secondary" style="pointer-events:none;">📂 파일(사진) 찾기</button>
-                        <!-- Actual Input: Opacity 0.01, High Z-index, Multiple Enabled -->
-                        <input type="file" id="itemImageFiles" accept="image/*" multiple
+                        <button type="button" class="btn-secondary" style="pointer-events:none;">📂 파일(사진) 추가하기</button>
+                        <input type="file" id="itemImageFiles" accept="image/*"
                             style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0.01; cursor:pointer; z-index:99;"
-                            onchange="handleFileSelect()" />
+                            onchange="handleFileSelect(this)" />
                     </div>
-                    <div id="filePreviewStatus"
-                        style="margin-top:10px; font-size:0.9rem; color:var(--text-main); font-weight:600;">선택된 파일 없음
+                    <div id="uploadedFileList" style="margin-top:15px; text-align:left;">
+                        <!-- Selected files list will appear here -->
                     </div>
-                    <small style="color:var(--text-sub); display:block; margin-top:5px;">개당 5MB 이하, 최대 3장까지 업로드
-                        가능</small>
+                    <div id="fileCountStatus" style="font-size:0.9em; color:var(--text-sub); margin-top:5px;">(0/3)
+                    </div>
                 </div>
             </div>
 
@@ -807,6 +805,14 @@
                     break;
                 case 'registrationFormPage':
                     document.getElementById('registrationFormPage').style.display = 'block';
+                    // Clear form fields when showing registration page
+                    document.getElementById('itemName').value = '';
+                    document.getElementById('requesterName').value = '';
+                    document.getElementById('requesterDept').value = '';
+                    document.getElementById('itemCategory').value = '';
+                    document.getElementById('itemDescription').value = '';
+                    currentFiles = []; // Clear files
+                    renderFileList(); // Update file list display
                     break;
                 case 'adminListPage':
                     document.getElementById('adminListPage').style.display = 'block';
@@ -1150,21 +1156,49 @@
         }
 
         // --- Registration Helpers ---
-        function handleFileSelect() {
-            const input = document.getElementById('itemImageFiles');
-            const status = document.getElementById('filePreviewStatus');
-            if (input.files.length > 3) {
-                alert('사진은 최대 3장까지만 선택할 수 있습니다.\n다시 선택해주세요.');
-                input.value = '';
-                status.textContent = '선택된 파일 없음';
+        let currentFiles = [];
+
+        function handleFileSelect(input) {
+            if (input.files.length === 0) return;
+
+            if (currentFiles.length >= 3) {
+                alert('사진은 최대 3장까지만 등록 가능합니다.');
+                input.value = ''; // Reset
                 return;
             }
-            if (input.files.length > 0) {
-                const names = Array.from(input.files).map(f => f.name).join(', ');
-                status.textContent = `선택됨: ${names} (총 ${input.files.length}개)`;
-            } else {
-                status.textContent = '선택된 파일 없음';
+
+            const file = input.files[0];
+            if (file.size > 5 * 1024 * 1024) {
+                alert('5MB 이하의 파일만 업로드 가능합니다.');
+                input.value = '';
+                return;
             }
+
+            currentFiles.push(file);
+            renderFileList();
+            input.value = ''; // Reset input to allow selecting the same file again if needed
+        }
+
+        function renderFileList() {
+            const container = document.getElementById('uploadedFileList');
+            const status = document.getElementById('fileCountStatus');
+
+            container.innerHTML = '';
+            currentFiles.forEach((file, index) => {
+                const item = document.createElement('div');
+                item.style.cssText = 'display:flex; justify-content:space-between; align-items:center; background:white; padding:8px; border:1px solid #eee; margin-bottom:5px; border-radius:4px; font-size:0.9rem;';
+                item.innerHTML = `
+                    <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:80%;">${file.name}</span>
+                    <button class="btn-ghost" onclick="removeFile(${index})" style="padding:2px 6px; color:red;">✕</button>
+                `;
+                container.appendChild(item);
+            });
+            status.textContent = `(${currentFiles.length}/3)`;
+        }
+
+        function removeFile(index) {
+            currentFiles.splice(index, 1);
+            renderFileList();
         }
 
         async function addItemAsync() {
@@ -1174,16 +1208,15 @@
             const rDept = document.getElementById('requesterDept').value;
             const cat = document.getElementById('itemCategory').value;
             const desc = document.getElementById('itemDescription').value.trim();
-            const files = document.getElementById('itemImageFiles').files;
 
+            // Use currentFiles instead of input.files
             if (!name || !rName || !rDept || !cat || !desc) { alert('모든 필수 정보를 입력해주세요.'); return; }
 
             // File Validation
-            if (files.length === 0) { alert('사진을 최소 1장 등록해주세요.'); return; }
-            if (files.length > 3) { alert('사진은 최대 3장까지만 등록 가능합니다.'); return; }
+            if (currentFiles.length === 0) { alert('사진을 최소 1장 등록해주세요.'); return; }
 
             try {
-                const uploadedUrls = await Promise.all(Array.from(files).map(convertFileToBase64));
+                const uploadedUrls = await Promise.all(currentFiles.map(convertFileToBase64));
 
                 const newItem = {
                     id: Date.now(), // simple unique id
@@ -1204,8 +1237,10 @@
                 // Clear Form
                 document.getElementById('itemName').value = '';
                 document.getElementById('itemDescription').value = '';
+                // Clear Files
+                currentFiles = [];
+                renderFileList();
                 document.getElementById('itemImageFiles').value = '';
-                document.getElementById('filePreviewStatus').textContent = '선택된 파일 없음';
 
                 showPage('main');
             } catch (e) {
