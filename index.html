@@ -744,8 +744,8 @@
             }
         };
 
-        // Load Items from LocalStorage or Init
-        let items = JSON.parse(localStorage.getItem('nanum_items')) || [
+        // Load Items from SessionStorage or Init
+        let items = JSON.parse(sessionStorage.getItem('nanum_items')) || [
             {
                 id: 1, name: '유아 카시트 (ISOFIX)', status: '판매 중', description: '사용 기간 1년 미만, 깨끗합니다.\n세탁 완료했습니다.',
                 imageUrls: ['https://via.placeholder.com/400x300/2da44e/ffffff?text=CarSeat'],
@@ -761,7 +761,7 @@
         ];
 
         // --- Helpers ---
-        const saveItems = () => localStorage.setItem('nanum_items', JSON.stringify(items));
+        const saveItems = () => sessionStorage.setItem('nanum_items', JSON.stringify(items));
         const getTodayDate = () => { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`; };
         const getSafeImage = (item) => (item.imageUrls && item.imageUrls.length > 0) ? item.imageUrls[0] : 'https://via.placeholder.com/400x300/e5e7eb/9ca3af?text=No+Image';
 
