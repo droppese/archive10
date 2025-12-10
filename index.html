@@ -1073,21 +1073,41 @@
                 card.className = 'card';
                 card.innerHTML = `
                 <div class="card-body">
-                    <div style="display:flex;justify-content:space-between;">
-                        <span style="font-weight:bold;">${item.name}</span>
-                        <span style="font-size:0.8em;color:var(--text-sub)">${item.status}</span>
+                    <div style="display:flex; flex-direction:row; gap:15px; align-items:center; cursor:pointer;" onclick="toggleAdminDetail(${item.id})">
+                        <img src="${getSafeImage(item)}" style="width:80px; height:80px; border-radius:8px; object-fit:cover; border:1px solid #eee; flex-shrink:0;">
+                        <div style="flex:1;">
+                            <div style="display:flex;justify-content:space-between;">
+                                <span style="font-weight:bold; font-size:1.05rem;">${item.name}</span>
+                                <span style="font-size:0.8em;color:var(--text-sub); flex-shrink:0;">${item.status}</span>
+                            </div>
+                            <div style="margin:5px 0 0 0; font-size:0.9em; line-height:1.4; color:var(--text-sub);">
+                                등록: ${item.requesterInfo.dept} ${item.requesterInfo.name}<br>
+                                ${item.historyBuyerInfo ? `신청: <span style="color:var(--secondary); font-weight:600;">${item.historyBuyerInfo.dept} ${item.historyBuyerInfo.name}</span>` : ''}
+                            </div>
+                            <div style="text-align:center; margin-top:5px;"><small style="color:#aaa;">🔽 클릭하여 상세 정보 보기</small></div>
+                        </div>
                     </div>
-                    <div style="margin:10px 0; font-size:0.9em; line-height:1.4">
-                        등록: ${item.requesterInfo.dept} ${item.requesterInfo.name}<br>
-                        ${item.historyBuyerInfo ? `신청: <span style="color:var(--secondary)">${item.historyBuyerInfo.dept} ${item.historyBuyerInfo.name}</span>` : ''}
+                    
+                    <!-- Hidden Detail Section -->
+                    <div id="detail-admin-${item.id}" style="display:none; margin-top:15px; padding-top:15px; border-top:1px dashed #eee;">
+                        <div class="detail-gallery">
+                            ${(item.imageUrls || []).map(url => `<img class="detail-thumb" src="${url}" onclick="openModal('${url}')">`).join('')}
+                        </div>
+                        <div class="detail-desc" style="background:#f9fafb; border:none;">${(item.description || '').replace(/\n/g, '<br>')}</div>
                     </div>
-                    <div style="display:flex; gap:5px; justify-content:flex-end;">
+
+                    <div style="display:flex; gap:5px; justify-content:flex-end; margin-top:15px; border-top:1px solid #f0f0f0; padding-top:10px;">
                          ${getAdminActionButtons(item)}
                     </div>
                 </div>
              `;
                 listContainer.appendChild(card);
             });
+        }
+
+        function toggleAdminDetail(id) {
+            const el = document.getElementById(`detail-admin-${id}`);
+            if (el) el.style.display = el.style.display === 'block' ? 'none' : 'block';
         }
 
         function getAdminActionButtons(item) {
