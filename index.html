@@ -666,15 +666,16 @@
                     <div style="position:relative; display:inline-block; overflow:hidden;">
                         <!-- Button visual only -->
                         <button type="button" class="btn-secondary" style="pointer-events:none;">📂 파일(사진) 찾기</button>
-                        <!-- Actual Input: Opacity 0.01 (technically visible), High Z-index -->
-                        <input type="file" id="itemImageFiles" accept="image/*"
+                        <!-- Actual Input: Opacity 0.01, High Z-index, Multiple Enabled -->
+                        <input type="file" id="itemImageFiles" accept="image/*" multiple
                             style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0.01; cursor:pointer; z-index:99;"
                             onchange="handleFileSelect()" />
                     </div>
                     <div id="filePreviewStatus"
                         style="margin-top:10px; font-size:0.9rem; color:var(--text-main); font-weight:600;">선택된 파일 없음
                     </div>
-                    <small style="color:var(--text-sub); display:block; margin-top:5px;">(테스트 모드: 사진 1장만 선택 가능)</small>
+                    <small style="color:var(--text-sub); display:block; margin-top:5px;">개당 5MB 이하, 최대 3장까지 업로드
+                        가능</small>
                 </div>
             </div>
 
